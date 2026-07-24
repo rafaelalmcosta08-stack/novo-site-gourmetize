@@ -1,8 +1,8 @@
 "use client"
-import { Search, Filter, ExternalLink, Phone } from "lucide-react"
+import { Search, Filter, ExternalLink, Phone, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { getStoredLeads, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, resetStoredLeads, LeadItem } from "@/lib/leads-store"
 
 export default function PreenchimentosPage() {
   const [leads, setLeads] = useState<LeadItem[]>([])
@@ -18,6 +18,12 @@ export default function PreenchimentosPage() {
     window.addEventListener("mub_leads_updated", handleUpdate)
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)
   }, [])
+
+  const handleClearData = () => {
+    if (confirm("Tem certeza que deseja resetar todos os preenchimentos? O dashboard começará limpo.")) {
+      resetStoredLeads()
+    }
+  }
 
   const filteredLeads = leads.filter((item) => {
     const term = searchTerm.toLowerCase()
@@ -61,6 +67,16 @@ export default function PreenchimentosPage() {
             <Filter className="w-4 h-4" />
             Filtros
           </button>
+          {leads.length > 0 && (
+            <button 
+              onClick={handleClearData}
+              className="flex items-center gap-2 text-xs text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 rounded-xl px-3 py-2 transition-colors font-bold shadow-sm bg-white"
+              title="Resetar todos os dados"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Limpar Dados
+            </button>
+          )}
         </div>
       </div>
 
