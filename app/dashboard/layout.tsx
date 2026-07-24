@@ -9,11 +9,11 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#f8f9fa] font-sans">
       <Sidebar />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#f8f9fa]">
+      <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden bg-[#f8f9fa]">
         <Header />
-        <div className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto min-h-0 relative" data-lenis-prevent>
           {children}
-        </div>
+        </main>
       </div>
     </div>
   )

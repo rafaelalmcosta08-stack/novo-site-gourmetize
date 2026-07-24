@@ -1,6 +1,7 @@
 "use client"
 
 import { ReactLenis } from "lenis/react"
+import { usePathname } from "next/navigation"
 import type { ReactNode } from "react"
 
 interface LenisProviderProps {
@@ -8,6 +9,12 @@ interface LenisProviderProps {
 }
 
 export function LenisProvider({ children }: LenisProviderProps) {
+  const pathname = usePathname()
+
+  if (pathname?.startsWith("/dashboard")) {
+    return <>{children}</>
+  }
+
   return (
     <ReactLenis
       root
