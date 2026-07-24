@@ -1,0 +1,8 @@
+{
+  "name": "GiGi Energy Drink",
+  "description": "Zero sugar, 75mg caffeine, 100% natural flavors energy drink landing page",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
