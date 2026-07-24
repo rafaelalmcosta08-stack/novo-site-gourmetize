@@ -20,6 +20,61 @@ import {
 
 export default function LeadDetailsPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'notes'>('overview')
+  
+  // States for interactivity
+  const [currentStageIndex, setCurrentStageIndex] = useState(3)
+  const stagesList = ["Lead Recebido", "Contato Feito", "Proposta Enviada", "Negociação", "Cliente Fechado"]
+  
+  const [tasks, setTasks] = useState([
+    { id: 1, title: 'Ligar para confirmar reunião', assignee: 'Rafael Costa', due: 'Hoje', done: false },
+    { id: 2, title: 'Enviar modelo de contrato', assignee: 'Rafael Costa', due: 'Amanhã', done: false },
+    { id: 3, title: 'Qualificar o lead (BANT)', assignee: 'Rafael Costa', due: 'Ontem', done: true },
+  ])
+
+  const [notes, setNotes] = useState([
+    { id: 1, author: 'Rafael Costa', time: 'Ontem, 16:45', text: 'Cliente pediu para revermos o valor da implantação do cardápio digital. Argumentei sobre o suporte incluso e ele pareceu receptivo. Ligar novamente na sexta-feira.' },
+    { id: 2, author: 'Rafael Costa', time: '14 Nov, 10:12', text: 'Lead entrou pelo formulário de contato do site. Procurando solução urgente porque o sistema atual vive caindo.' }
+  ])
+  const [newNoteText, setNewNoteText] = useState('')
+
+  const handleAdvanceStage = () => {
+    if (currentStageIndex < stagesList.length - 1) {
+      setCurrentStageIndex(prev => prev + 1)
+    }
+  }
+
+  const handleToggleTask = (id: number) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  }
+
+  const handleDeleteTask = (id: number) => {
+    setTasks(tasks.filter(t => t.id !== id))
+  }
+
+  const handleAddTask = () => {
+    const title = window.prompt("Digite o título da nova tarefa:")
+    if (title && title.trim()) {
+      setTasks([{
+        id: Date.now(),
+        title: title.trim(),
+        assignee: 'Rafael Costa',
+        due: 'Hoje',
+        done: false
+      }, ...tasks])
+    }
+  }
+
+  const handleAddNote = () => {
+    if (newNoteText.trim()) {
+      setNotes([{
+        id: Date.now(),
+        author: 'Rafael Costa',
+        time: 'Agora mesmo',
+        text: newNoteText.trim()
+      }, ...notes])
+      setNewNoteText('')
+    }
+  }
 
   return (
     <div className="flex-1 flex overflow-hidden">
@@ -59,41 +114,41 @@ export default function LeadDetailsPage() {
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-base font-bold text-gray-900">Estágios</h3>
-                  <button className="px-4 py-2 bg-[#ff6b00] hover:bg-[#e66000] text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                    Avançar Estágio
+                  <button 
+                    onClick={handleAdvanceStage}
+                    disabled={currentStageIndex === stagesList.length - 1}
+                    className="px-4 py-2 bg-[#ff6b00] hover:bg-[#e66000] disabled:bg-gray-300 text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
+                  >
+                    {currentStageIndex === stagesList.length - 1 ? 'Concluído' : 'Avançar Estágio'}
                   </button>
                 </div>
                 
                 <div className="flex items-center justify-between relative">
                   <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-gray-200 -z-10 -translate-y-1/2"></div>
                   
-                  {[
-                    { label: "Lead Recebido", status: "completed" },
-                    { label: "Contato Feito", status: "completed" },
-                    { label: "Proposta Enviada", status: "completed" },
-                    { label: "Negociação", status: "current" },
-                    { label: "Cliente Fechado", status: "upcoming" }
-                  ].map((stage, i) => (
+                  {stagesList.map((label, i) => {
+                    const status = i < currentStageIndex ? 'completed' : i === currentStageIndex ? 'current' : 'upcoming'
+                    return (
                     <div key={i} className="flex flex-col items-center gap-2 bg-white px-2">
-                      {stage.status === 'completed' && (
+                      {status === 'completed' && (
                         <div className="w-6 h-6 rounded-full bg-[#111111] flex items-center justify-center text-white ring-4 ring-white">
                           <Check className="w-3.5 h-3.5" />
                         </div>
                       )}
-                      {stage.status === 'current' && (
+                      {status === 'current' && (
                         <div className="w-6 h-6 rounded-full bg-white border-2 border-[#ff6b00] flex items-center justify-center ring-4 ring-white">
                           <div className="w-2 h-2 rounded-full bg-[#ff6b00]"></div>
                         </div>
                       )}
-                      {stage.status === 'upcoming' && (
+                      {status === 'upcoming' && (
                         <div className="w-6 h-6 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center ring-4 ring-white">
                         </div>
                       )}
-                      <span className={`text-xs font-semibold ${stage.status === 'upcoming' ? 'text-gray-400' : 'text-gray-900'}`}>
-                        {stage.label}
+                      <span className={`text-xs font-semibold ${status === 'upcoming' ? 'text-gray-400' : 'text-gray-900'}`}>
+                        {label}
                       </span>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
 
@@ -214,23 +269,20 @@ export default function LeadDetailsPage() {
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-base font-bold text-gray-900">Tarefas</h3>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#ff6b00] hover:bg-[#e66000] text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                <button onClick={handleAddTask} className="flex items-center gap-2 px-4 py-2 bg-[#ff6b00] hover:bg-[#e66000] text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
                   <Plus className="w-4 h-4" />
                   Nova Tarefa
                 </button>
               </div>
               <div className="space-y-3">
-                {[
-                  { title: 'Ligar para confirmar reunião', assignee: 'Rafael Costa', due: 'Hoje', done: false },
-                  { title: 'Enviar modelo de contrato', assignee: 'Rafael Costa', due: 'Amanhã', done: false },
-                  { title: 'Qualificar o lead (BANT)', assignee: 'Rafael Costa', due: 'Ontem', done: true },
-                ].map((task, i) => (
-                  <div key={i} className={`flex items-center justify-between p-4 rounded-xl border ${task.done ? 'bg-gray-50 border-gray-100' : 'bg-white border-gray-200'}`}>
+                {tasks.map((task) => (
+                  <div key={task.id} className={`flex items-center justify-between p-4 rounded-xl border ${task.done ? 'bg-gray-50 border-gray-100' : 'bg-white border-gray-200'}`}>
                     <div className="flex items-center gap-4">
                       <input 
                         type="checkbox" 
-                        defaultChecked={task.done} 
-                        className="w-5 h-5 rounded border-gray-300 text-[#ff6b00] focus:ring-[#ff6b00]"
+                        checked={task.done}
+                        onChange={() => handleToggleTask(task.id)}
+                        className="w-5 h-5 rounded border-gray-300 text-[#ff6b00] focus:ring-[#ff6b00] cursor-pointer"
                       />
                       <div className="flex flex-col">
                         <span className={`text-sm font-bold ${task.done ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
@@ -246,7 +298,7 @@ export default function LeadDetailsPage() {
                         </div>
                       </div>
                     </div>
-                    <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <button onClick={() => handleDeleteTask(task.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -262,46 +314,39 @@ export default function LeadDetailsPage() {
               <div className="mb-8">
                 <textarea 
                   rows={4}
+                  value={newNoteText}
+                  onChange={(e) => setNewNoteText(e.target.value)}
                   placeholder="Adicione uma observação sobre o lead..."
                   className="w-full p-4 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition-colors resize-none"
                 ></textarea>
                 <div className="flex justify-end mt-3">
-                  <button className="px-5 py-2 bg-[#ff6b00] hover:bg-[#e66000] text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
+                  <button 
+                    onClick={handleAddNote}
+                    disabled={!newNoteText.trim()}
+                    className="px-5 py-2 bg-[#ff6b00] hover:bg-[#e66000] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
+                  >
                     Salvar Nota
                   </button>
                 </div>
               </div>
 
               <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[#ff6b00] text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-bold text-gray-900 text-sm">Rafael Costa</h4>
-                      <time className="text-xs font-medium text-gray-400">Ontem, 16:45</time>
+                {notes.map((note) => (
+                  <div key={note.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-[#ff6b00] text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                      <FileText className="w-4 h-4" />
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Cliente pediu para revermos o valor da implantação do cardápio digital. Argumentei sobre o suporte incluso e ele pareceu receptivo. Ligar novamente na sexta-feira.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-gray-100 text-gray-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-bold text-gray-900 text-sm">Rafael Costa</h4>
-                      <time className="text-xs font-medium text-gray-400">14 Nov, 10:12</time>
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-200 bg-white shadow-sm">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="font-bold text-gray-900 text-sm">{note.author}</h4>
+                        <time className="text-xs font-medium text-gray-400">{note.time}</time>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2">
+                        {note.text}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Lead entrou pelo formulário de contato do site. Procurando solução urgente porque o sistema atual vive caindo.
-                    </p>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           )}

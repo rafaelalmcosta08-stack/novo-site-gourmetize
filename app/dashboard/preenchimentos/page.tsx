@@ -1,14 +1,34 @@
 "use client"
-import { Search, Filter, MoreHorizontal, ExternalLink } from "lucide-react"
+import { Search, Filter, ExternalLink, Phone } from "lucide-react"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+import { getStoredLeads, LeadItem } from "@/lib/leads-store"
 
 export default function PreenchimentosPage() {
-  const data = [
-    { id: 1, restaurante: 'Pizzaria Donatello', contato: 'Marcos Silva', email: 'marcos@donatello.com', servico: 'Combo', data: '23/07/2026', status: 'Novo' },
-    { id: 2, restaurante: 'Sushi Express', contato: 'Ana Lee', email: 'ana@sushiexpress.com', servico: 'Cardápio Digital', data: '22/07/2026', status: 'Já contatado' },
-    { id: 3, restaurante: 'Burger King', contato: 'Carlos Dias', email: 'carlos@bk.com', servico: 'SaaS de Controle', data: '21/07/2026', status: 'Convertido em lead' },
-    { id: 4, restaurante: 'Sabor & Cia', contato: 'João Silva', email: 'joao@saborecia.com.br', servico: 'Combo', data: '15/11/2024', status: 'Convertido em lead' },
-  ]
+  const [leads, setLeads] = useState<LeadItem[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+
+  const loadData = () => {
+    setLeads(getStoredLeads())
+  }
+
+  useEffect(() => {
+    loadData()
+    const handleUpdate = () => loadData()
+    window.addEventListener("mub_leads_updated", handleUpdate)
+    return () => window.removeEventListener("mub_leads_updated", handleUpdate)
+  }, [])
+
+  const filteredLeads = leads.filter((item) => {
+    const term = searchTerm.toLowerCase()
+    return (
+      item.restaurante.toLowerCase().includes(term) ||
+      item.contato.toLowerCase().includes(term) ||
+      item.email.toLowerCase().includes(term) ||
+      item.segmento.toLowerCase().includes(term) ||
+      (item.telefone && item.telefone.includes(term))
+    )
+  })
 
   const getStatusStyle = (status: string) => {
     switch(status) {
@@ -24,7 +44,7 @@ export default function PreenchimentosPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-2xl font-extrabold text-gray-900">Preenchimentos</h2>
-          <p className="text-sm text-gray-500 mt-1">Gerencie os formulários recebidos do site institucional.</p>
+          <p className="text-sm text-gray-500 mt-1">Gerencie os formulários recebidos do site institucional ({leads.length} recebidos).</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -32,6 +52,8 @@ export default function PreenchimentosPage() {
             <input 
               type="text" 
               placeholder="Buscar formulário..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition-colors w-64 shadow-sm"
             />
           </div>
@@ -48,44 +70,62 @@ export default function PreenchimentosPage() {
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Restaurante</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Contato</th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Serviço de Interesse</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Contato / WhatsApp</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Segmento / Serviço</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Ação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {data.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-bold text-gray-900">{row.restaurante}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-900">{row.contato}</span>
-                      <span className="text-xs text-gray-500">{row.email}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-600 font-medium">{row.servico}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-600 font-medium">{row.data}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusStyle(row.status)}`}>
-                      {row.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/dashboard/crm/${row.id}`} className="inline-flex items-center gap-1.5 text-[#ff6b00] hover:text-[#e66000] bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors font-bold">
-                      Abrir no CRM
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
+              {filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500">
+                    Nenhum formulário encontrado.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredLeads.map((row) => (
+                  <tr key={row.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-gray-900">{row.restaurante}</span>
+                        {row.faturamento && (
+                          <span className="text-xs text-gray-400 font-medium">Fat: {row.faturamento}</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">{row.contato}</span>
+                        <span className="text-xs text-gray-500">{row.email}</span>
+                        {row.telefone && (
+                          <span className="text-xs text-green-600 font-semibold flex items-center gap-1 mt-0.5">
+                            <Phone className="w-3 h-3" /> {row.telefone}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600 font-medium">{row.segmento || row.servico}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600 font-medium">{row.data}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusStyle(row.status)}`}>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href={`/dashboard/crm`} className="inline-flex items-center gap-1.5 text-[#ff6b00] hover:text-[#e66000] bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors font-bold">
+                        Abrir no CRM
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

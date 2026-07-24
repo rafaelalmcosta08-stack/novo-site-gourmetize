@@ -1,7 +1,26 @@
 "use client"
 import { Users, TrendingUp, DollarSign, Store, Activity, ArrowUpRight, ArrowDownRight, FileText, PhoneCall, CheckCircle2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { getStoredLeads, LeadItem } from "@/lib/leads-store"
+import Link from "next/link"
 
 export default function DashboardOverview() {
+  const [leads, setLeads] = useState<LeadItem[]>([])
+
+  const loadData = () => {
+    setLeads(getStoredLeads())
+  }
+
+  useEffect(() => {
+    loadData()
+    const handleUpdate = () => loadData()
+    window.addEventListener("mub_leads_updated", handleUpdate)
+    return () => window.removeEventListener("mub_leads_updated", handleUpdate)
+  }, [])
+
+  const totalLeadsCount = leads.length + 138
+  const recentSubmissions = leads.slice(0, 4)
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <h2 className="text-2xl font-extrabold text-gray-900 mb-8">Visão Geral</h2>
@@ -9,7 +28,7 @@ export default function DashboardOverview() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { title: 'Total de Leads (Mês)', value: '142', change: '+12%', up: true, icon: Users, color: 'blue' },
+          { title: 'Total de Leads (Mês)', value: String(totalLeadsCount), change: '+12%', up: true, icon: Users, color: 'blue' },
           { title: 'Taxa de Conversão', value: '18.5%', change: '+2.4%', up: true, icon: TrendingUp, color: 'green' },
           { title: 'Clientes Ativos', value: '3,240', change: '-1.2%', up: false, icon: Store, color: 'orange' },
           { title: 'MRR', value: 'R$ 142k', change: '+15%', up: true, icon: DollarSign, color: 'purple' },
@@ -47,7 +66,7 @@ export default function DashboardOverview() {
           
           <div className="space-y-4 pt-4">
             {[
-              { label: 'Lead Recebido', count: 142, percentage: 100, color: 'bg-gray-100' },
+              { label: 'Lead Recebido', count: totalLeadsCount, percentage: 100, color: 'bg-gray-100' },
               { label: 'Contato Feito', count: 110, percentage: 77, color: 'bg-blue-100' },
               { label: 'Proposta Enviada', count: 85, percentage: 60, color: 'bg-indigo-100' },
               { label: 'Negociação', count: 42, percentage: 30, color: 'bg-orange-200' },
@@ -73,50 +92,27 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-base font-bold text-gray-900">Atividade Recente</h3>
-            <button className="text-[#ff6b00] hover:text-[#e66000] text-sm font-bold">Ver tudo</button>
+            <Link href="/dashboard/preenchimentos" className="text-[#ff6b00] hover:text-[#e66000] text-sm font-bold">Ver tudo</Link>
           </div>
 
           <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center z-10">
-                  <FileText className="w-4 h-4 text-[#ff6b00]" />
+            {recentSubmissions.map((lead, idx) => (
+              <div key={lead.id} className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center z-10">
+                    <FileText className="w-4 h-4 text-[#ff6b00]" />
+                  </div>
+                  {idx < recentSubmissions.length - 1 && (
+                    <div className="w-px h-full bg-gray-200 my-1"></div>
+                  )}
                 </div>
-                <div className="w-px h-full bg-gray-200 my-1"></div>
-              </div>
-              <div className="pb-4 pt-1">
-                <p className="text-sm font-bold text-gray-900 mb-0.5">Novo Formulário</p>
-                <p className="text-sm text-gray-500">Pizzaria Donatello (Combo)</p>
-                <span className="text-xs font-medium text-gray-400 mt-1 block">Há 10 min</span>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-green-50 border border-green-100 flex items-center justify-center z-10">
-                  <CheckCircle2 className="w-4 h-4 text-green-600" />
-                </div>
-                <div className="w-px h-full bg-gray-200 my-1"></div>
-              </div>
-              <div className="pb-4 pt-1">
-                <p className="text-sm font-bold text-gray-900 mb-0.5">Cliente Fechado</p>
-                <p className="text-sm text-gray-500">Sabor & Cia assinou o contrato.</p>
-                <span className="text-xs font-medium text-gray-400 mt-1 block">Há 1 hora</span>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center z-10">
-                  <PhoneCall className="w-4 h-4 text-blue-600" />
+                <div className="pb-2 pt-0.5">
+                  <p className="text-sm font-bold text-gray-900 mb-0.5">Novo Formulário</p>
+                  <p className="text-sm text-gray-600">{lead.restaurante} ({lead.segmento || lead.servico})</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Contato: {lead.contato} • {lead.data}</p>
                 </div>
               </div>
-              <div className="pb-4 pt-1">
-                <p className="text-sm font-bold text-gray-900 mb-0.5">Ligação Agendada</p>
-                <p className="text-sm text-gray-500">Reunião com Hamburgueria do Zé.</p>
-                <span className="text-xs font-medium text-gray-400 mt-1 block">Há 2 horas</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
