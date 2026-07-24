@@ -1,11 +1,5 @@
 {
   "name": "novo-site-gourmetize",
   "compatibility_date": "2024-03-20",
-  "pages_build_output_dir": ".vercel/output/static",
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "novo-site-gourmetize"
-    }
-  ]
+  "pages_build_output_dir": ".vercel/output/static"
 }
