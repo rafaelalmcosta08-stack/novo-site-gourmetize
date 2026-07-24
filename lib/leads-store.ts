@@ -51,29 +51,43 @@ export function getStoredLeads(): LeadItem[] {
 }
 
 /**
- * Maps Supabase row (snake_case or camelCase) to LeadItem
+ * Sanitizes input string to prevent XSS and HTML injection
+ */
+function sanitizeInput(str: string): string {
+  if (typeof str !== 'string') return ''
+  return str
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;')
+    .trim()
+}
+
+/**
+ * Maps Supabase row (snake_case or camelCase) to LeadItem with sanitization
  */
 function mapSupabaseRowToLead(row: any): LeadItem {
   return {
-    id: row.id || `lead_${Date.now()}`,
-    restaurante: row.restaurante || row.empresa || '',
-    contato: row.contato || row.nome || '',
-    email: row.email || '',
-    telefone: row.telefone || '',
-    segmento: row.segmento || '',
-    faturamento: row.faturamento || '',
-    servico: row.servico || '',
-    data: row.data || new Date().toLocaleDateString('pt-BR'),
+    id: sanitizeInput(row.id || `lead_${Date.now()}`),
+    restaurante: sanitizeInput(row.restaurante || row.empresa || ''),
+    contato: sanitizeInput(row.contato || row.nome || ''),
+    email: sanitizeInput(row.email || ''),
+    telefone: sanitizeInput(row.telefone || ''),
+    segmento: sanitizeInput(row.segmento || ''),
+    faturamento: sanitizeInput(row.faturamento || ''),
+    servico: sanitizeInput(row.servico || ''),
+    data: sanitizeInput(row.data || new Date().toLocaleDateString('pt-BR')),
     timestamp: row.timestamp ? Number(row.timestamp) : Date.now(),
-    status: row.status || 'Novo',
-    plano: row.plano || 'R$ 350,00',
-    dias: row.dias || 0,
-    crmStage: row.crm_stage || row.crmStage || 'lead-recebido',
-    origem: row.origem || 'Orgânico / Site',
-    tempoParadoDias: row.tempo_parado_dias ?? row.tempoParadoDias ?? 0,
-    desconto: row.desconto || 0,
-    valorMensal: row.valor_mensal ?? row.valorMensal ?? 0,
-    motivoCancelamento: row.motivo_cancelamento || row.motivoCancelamento || '',
+    status: (['Novo', 'Já contatado', 'Convertido em lead'].includes(row.status) ? row.status : 'Novo') as any,
+    plano: sanitizeInput(row.plano || 'R$ 350,00'),
+    dias: Number(row.dias || 0),
+    crmStage: sanitizeInput(row.crm_stage || row.crmStage || 'lead-recebido'),
+    origem: (['Instagram Ads', 'Google Ads', 'Indicação', 'Orgânico / Site', 'Outros'].includes(row.origem) ? row.origem : 'Orgânico / Site') as any,
+    tempoParadoDias: Number(row.tempo_parado_dias ?? row.tempoParadoDias ?? 0),
+    desconto: Number(row.desconto || 0),
+    valorMensal: Number(row.valor_mensal ?? row.valorMensal ?? 0),
+    motivoCancelamento: sanitizeInput(row.motivo_cancelamento || row.motivoCancelamento || ''),
     tarefaPendente: row.tarefa_pendente || row.tarefaPendente || undefined
   }
 }
@@ -84,24 +98,24 @@ function mapSupabaseRowToLead(row: any): LeadItem {
 function mapLeadToSupabaseRow(lead: LeadItem) {
   return {
     id: lead.id,
-    restaurante: lead.restaurante,
-    contato: lead.contato,
-    email: lead.email,
-    telefone: lead.telefone,
-    segmento: lead.segmento,
-    faturamento: lead.faturamento,
-    servico: lead.servico,
-    data: lead.data,
+    restaurante: sanitizeInput(lead.restaurante),
+    contato: sanitizeInput(lead.contato),
+    email: sanitizeInput(lead.email),
+    telefone: sanitizeInput(lead.telefone),
+    segmento: sanitizeInput(lead.segmento),
+    faturamento: sanitizeInput(lead.faturamento),
+    servico: sanitizeInput(lead.servico),
+    data: sanitizeInput(lead.data),
     timestamp: lead.timestamp,
     status: lead.status,
-    plano: lead.plano,
+    plano: sanitizeInput(lead.plano || 'R$ 350,00'),
     dias: lead.dias,
-    crm_stage: lead.crmStage,
+    crm_stage: sanitizeInput(lead.crmStage || 'lead-recebido'),
     origem: lead.origem,
     tempo_parado_dias: lead.tempoParadoDias,
     desconto: lead.desconto,
     valor_mensal: lead.valorMensal,
-    motivo_cancelamento: lead.motivoCancelamento,
+    motivo_cancelamento: sanitizeInput(lead.motivoCancelamento || ''),
     tarefa_pendente: lead.tarefaPendente ? lead.tarefaPendente : null
   }
 }
