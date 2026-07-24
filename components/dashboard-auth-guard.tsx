@@ -6,8 +6,8 @@ import Link from "next/link"
 
 export function DashboardAuthGuard({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [email, setEmail] = useState("rafael@gourmetize.com")
-  const [password, setPassword] = useState("123456")
+  const [email, setEmail] = useState("administracao@gourmetize.com")
+  const [password, setPassword] = useState("tFT6%yi2rq&F5@t")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -31,11 +31,14 @@ export function DashboardAuthGuard({ children }: { children: React.ReactNode }) 
     setIsLoading(true)
 
     setTimeout(() => {
-      if (email.trim().length > 0 && password.trim().length > 0) {
+      const cleanEmail = email.trim().toLowerCase()
+      const cleanPass = password.trim()
+
+      if (cleanEmail === "administracao@gourmetize.com" && cleanPass === "tFT6%yi2rq&F5@t") {
         localStorage.setItem("mub_auth_authenticated", "true")
         setIsAuthenticated(true)
       } else {
-        setError("Por favor, preencha o e-mail e a senha.")
+        setError("E-mail ou senha incorretos. Utilize as credenciais de administração registradas.")
       }
       setIsLoading(false)
     }, 400)

@@ -6,7 +6,7 @@ import {
   FileText, Clock, AlertTriangle, MessageCircle, Calendar, Filter, 
   CheckSquare, Square, AlertCircle, UserX, BarChart3, ChevronRight, RefreshCw
 } from "lucide-react"
-import { getStoredLeads, LeadItem, TarefaItem } from "@/lib/leads-store"
+import { getStoredLeads, syncLeadsFromSupabase, LeadItem, TarefaItem } from "@/lib/leads-store"
 import Link from "next/link"
 
 export default function DashboardOverview() {
@@ -20,9 +20,16 @@ export default function DashboardOverview() {
 
   useEffect(() => {
     loadData()
+    syncLeadsFromSupabase().then(fetched => {
+      if (fetched && fetched.length > 0) setLeads(fetched)
+    })
     const handleUpdate = () => loadData()
     window.addEventListener("mub_leads_updated", handleUpdate)
-    return () => window.removeEventListener("mub_leads_updated", handleUpdate)
+    window.addEventListener("mub_supabase_config_changed", () => syncLeadsFromSupabase())
+    return () => {
+      window.removeEventListener("mub_leads_updated", handleUpdate)
+      window.removeEventListener("mub_supabase_config_changed", () => syncLeadsFromSupabase())
+    }
   }, [])
 
   // Dynamic Metrics Calculations

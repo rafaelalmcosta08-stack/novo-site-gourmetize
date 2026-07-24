@@ -103,8 +103,8 @@ export function Sidebar() {
                 <ShieldCheck className="w-4 h-4 text-[#ff6b00]" />
                 <span className="text-xs font-bold text-gray-300">Sessão Ativa</span>
               </div>
-              <p className="text-xs font-semibold text-white mt-1">Rafael Costa</p>
-              <p className="text-[11px] text-gray-400 truncate">rafael@gourmetize.com</p>
+              <p className="text-xs font-semibold text-white mt-1">Administração Gourmetize</p>
+              <p className="text-[11px] text-gray-400 truncate">administracao@gourmetize.com</p>
             </div>
 
             <div className="py-1">
@@ -144,8 +144,8 @@ export function Sidebar() {
               className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
             />
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold text-white leading-tight truncate">Rafael Costa</span>
-              <span className="text-xs text-gray-400 leading-tight truncate">rafael@gourmetize.com</span>
+              <span className="text-sm font-semibold text-white leading-tight truncate">Administração</span>
+              <span className="text-xs text-gray-400 leading-tight truncate">administracao@gourmetize.com</span>
             </div>
           </div>
           <MoreHorizontal className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors shrink-0 ml-1" />

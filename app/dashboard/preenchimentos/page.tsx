@@ -2,7 +2,7 @@
 import { Search, Filter, ExternalLink, Phone, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { getStoredLeads, resetStoredLeads, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, resetStoredLeads, syncLeadsFromSupabase, LeadItem } from "@/lib/leads-store"
 
 export default function PreenchimentosPage() {
   const [leads, setLeads] = useState<LeadItem[]>([])
@@ -14,6 +14,9 @@ export default function PreenchimentosPage() {
 
   useEffect(() => {
     loadData()
+    syncLeadsFromSupabase().then(fetched => {
+      if (fetched && fetched.length > 0) setLeads(fetched)
+    })
     const handleUpdate = () => loadData()
     window.addEventListener("mub_leads_updated", handleUpdate)
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)
