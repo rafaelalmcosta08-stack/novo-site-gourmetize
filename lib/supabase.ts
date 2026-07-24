@@ -55,7 +55,7 @@ export function getSupabaseClient(): SupabaseClient | null {
   }
 }
 
-export async function testSupabaseConnection(): Promise<{ success: boolean; message: string }> {
+export async function testSupabaseConnection(): Promise<{ success: boolean; isTableMissing?: boolean; message: string }> {
   const supabase = getSupabaseClient()
   if (!supabase) {
     return { 
@@ -67,17 +67,28 @@ export async function testSupabaseConnection(): Promise<{ success: boolean; mess
   try {
     const { data, error } = await supabase.from('leads').select('id').limit(1)
     if (error) {
-      if (error.code === '42P01') {
+      const isMissing = 
+        error.code === '42P01' || 
+        error.code === 'PGRST301' || 
+        error.code === 'PGRST204' ||
+        error.message?.toLowerCase().includes('could not find the table') ||
+        error.message?.toLowerCase().includes('schema cache') ||
+        error.message?.toLowerCase().includes('relation "leads" does not exist')
+
+      if (isMissing) {
         return {
           success: false,
-          message: 'Conectado ao Supabase, mas a tabela "leads" ainda não foi criada. Crie a tabela executando o SQL fornecido abaixo.'
+          isTableMissing: true,
+          message: 'Conexão com Supabase realizada com sucesso! Porém, a tabela "leads" ainda não existe no banco de dados. Execute o script SQL abaixo no SQL Editor do Supabase para criá-la.'
         }
       }
+
       return {
         success: false,
         message: `Erro na conexão com Supabase: ${error.message}`
       }
     }
+
     return {
       success: true,
       message: 'Conexão com o Supabase estabelecida e testada com sucesso!'

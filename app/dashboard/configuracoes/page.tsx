@@ -63,9 +63,10 @@ export default function ConfiguracoesPage() {
   // Supabase state
   const [supabaseUrl, setSupabaseUrl] = useState("")
   const [supabaseKey, setSupabaseKey] = useState("")
-  const [connStatus, setConnStatus] = useState<{ loading: boolean; success: boolean | null; message: string }>({
+  const [connStatus, setConnStatus] = useState<{ loading: boolean; success: boolean | null; isTableMissing?: boolean; message: string }>({
     loading: false,
     success: null,
+    isTableMissing: false,
     message: ""
   })
   const [showSql, setShowSql] = useState(false)
@@ -102,8 +103,13 @@ export default function ConfiguracoesPage() {
     setConnStatus({
       loading: false,
       success: res.success,
+      isTableMissing: res.isTableMissing,
       message: res.message
     })
+
+    if (res.isTableMissing) {
+      setShowSql(true)
+    }
 
     if (res.success) {
       syncLeadsFromSupabase()
@@ -240,21 +246,36 @@ export default function ConfiguracoesPage() {
 
           {/* Status Message */}
           {connStatus.message && (
-            <div className={`p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 ${
+            <div className={`p-4 rounded-xl text-xs font-semibold flex flex-col gap-2 ${
               connStatus.success 
                 ? "bg-emerald-50 border border-emerald-200 text-emerald-900"
                 : connStatus.loading
                 ? "bg-blue-50 border border-blue-200 text-blue-900"
-                : "bg-amber-50 border border-amber-200 text-amber-900"
+                : connStatus.isTableMissing
+                ? "bg-amber-50 border border-amber-200 text-amber-900"
+                : "bg-red-50 border border-red-200 text-red-900"
             }`}>
-              {connStatus.loading ? (
-                <RefreshCw className="w-4 h-4 text-blue-600 animate-spin shrink-0 mt-0.5" />
-              ) : connStatus.success ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              ) : (
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2.5">
+                {connStatus.loading ? (
+                  <RefreshCw className="w-4 h-4 text-blue-600 animate-spin shrink-0 mt-0.5" />
+                ) : connStatus.success ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                )}
+                <span>{connStatus.message}</span>
+              </div>
+
+              {connStatus.isTableMissing && (
+                <div className="mt-2 pt-2.5 border-t border-amber-200/60 text-[11px] text-amber-800 space-y-1.5 font-normal">
+                  <p className="font-bold">Como resolver em 3 passos simples:</p>
+                  <ol className="list-decimal pl-4 space-y-1">
+                    <li>Clique no botão <span className="font-bold">"Copiar SQL"</span> no bloco abaixo.</li>
+                    <li>No painel do Supabase (<a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline font-bold">supabase.com/dashboard</a>), abra o menu <span className="font-bold">SQL Editor</span>.</li>
+                    <li>Cole o código SQL, clique em <span className="font-bold">"Run"</span> para executar e depois clique no botão verde <span className="font-bold">"Salvar e Testar Conexão Supabase"</span> aqui.</li>
+                  </ol>
+                </div>
               )}
-              <span>{connStatus.message}</span>
             </div>
           )}
 
