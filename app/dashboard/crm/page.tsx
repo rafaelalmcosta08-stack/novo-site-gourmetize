@@ -1,8 +1,8 @@
 "use client"
-import { useState, useEffect } from "react"
-import { Search, Filter, Plus, MoreHorizontal, Clock, DollarSign, User, Phone, Tag } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Search, Filter, Plus, MoreHorizontal, Clock, DollarSign, User, Phone, Tag, Trash2, ArrowRightLeft, MessageCircle } from "lucide-react"
 import Link from "next/link"
-import { getStoredLeads, updateLeadStage, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, updateLeadStage, deleteLead, LeadItem } from "@/lib/leads-store"
 
 type StagesType = {
   [key: string]: {
@@ -22,6 +22,8 @@ export default function CRMFunilPage() {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [draggedItem, setDraggedItem] = useState<{ id: string, sourceCol: string } | null>(null)
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const loadData = () => {
     const leads = getStoredLeads()
@@ -48,6 +50,17 @@ export default function CRMFunilPage() {
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)
   }, [])
 
+  // Close card menu on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setActiveMenuId(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   const handleDragStart = (e: React.DragEvent, id: string, sourceCol: string) => {
     setDraggedItem({ id, sourceCol })
     e.dataTransfer.effectAllowed = 'move'
@@ -63,6 +76,20 @@ export default function CRMFunilPage() {
 
     updateLeadStage(draggedItem.id, targetCol)
     setDraggedItem(null)
+  }
+
+  const handleDeleteCard = (e: React.MouseEvent, cardId: string) => {
+    e.stopPropagation()
+    if (confirm("Tem certeza que deseja excluir este lead?")) {
+      deleteLead(cardId)
+      setActiveMenuId(null)
+    }
+  }
+
+  const handleMoveStage = (e: React.MouseEvent, cardId: string, newStage: string) => {
+    e.stopPropagation()
+    updateLeadStage(cardId, newStage)
+    setActiveMenuId(null)
   }
 
   return (
@@ -120,14 +147,80 @@ export default function CRMFunilPage() {
                     key={card.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, card.id, colId)}
-                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:border-orange-300 hover:shadow-md transition-all group"
+                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 cursor-grab active:cursor-grabbing hover:border-orange-300 hover:shadow-md transition-all group relative"
                   >
                     <div>
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-bold text-gray-900 text-sm leading-tight group-hover:text-[#ff6b00] transition-colors">{card.restaurante}</h4>
-                        <button className="text-gray-400 hover:text-gray-900" onClick={e => e.preventDefault()}>
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        <div className="relative">
+                          <button 
+                            type="button"
+                            className="text-gray-400 hover:text-gray-900 p-1 rounded-lg hover:bg-gray-100 transition-colors" 
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              setActiveMenuId(activeMenuId === card.id ? null : card.id)
+                            }}
+                            title="Opções do Lead"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+
+                          {/* 3-Dots Popup Dropdown Menu */}
+                          {activeMenuId === card.id && (
+                            <div 
+                              ref={menuRef}
+                              onClick={(e) => e.stopPropagation()}
+                              className="absolute right-0 top-7 w-52 bg-white rounded-2xl shadow-xl border border-gray-200 p-2 z-50 animate-in fade-in zoom-in-95"
+                            >
+                              <div className="px-3 py-1.5 border-b border-gray-100 mb-1">
+                                <p className="text-[10px] font-bold text-gray-400 uppercase">Ações do Lead</p>
+                              </div>
+
+                              {/* WhatsApp Direct Action */}
+                              {card.telefone && (
+                                <a
+                                  href={`https://wa.me/55${card.telefone.replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(card.contato)},%20sou%20da%20equipe%20Cozinha%20Digital!`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-green-700 hover:bg-green-50 rounded-xl transition-colors"
+                                  onClick={() => setActiveMenuId(null)}
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5 text-green-600" />
+                                  Chamar no WhatsApp
+                                </a>
+                              )}
+
+                              {/* Move Stage Options */}
+                              <div className="py-1 border-t border-b border-gray-100 my-1 space-y-0.5">
+                                <p className="px-3 text-[10px] font-bold text-gray-400 uppercase my-1">Mover para Estágio</p>
+                                {Object.entries(stages).map(([stgKey, stgVal]) => (
+                                  colId !== stgKey && (
+                                    <button
+                                      key={stgKey}
+                                      type="button"
+                                      onClick={(e) => handleMoveStage(e, card.id, stgKey)}
+                                      className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-orange-50 hover:text-[#ff6b00] font-medium rounded-lg transition-colors flex items-center justify-between"
+                                    >
+                                      <span className="truncate">{stgVal.title}</span>
+                                      <ArrowRightLeft className="w-3 h-3 text-gray-400 shrink-0 ml-1" />
+                                    </button>
+                                  )
+                                ))}
+                              </div>
+
+                              {/* Delete Option */}
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteCard(e, card.id)}
+                                className="w-full text-left px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2 mt-0.5"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                Excluir Lead
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="space-y-1.5 mt-3">

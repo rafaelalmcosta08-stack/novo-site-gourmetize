@@ -66,11 +66,11 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto pt-4 border-t border-white/10 space-y-1">
-        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:bg-white/10 hover:text-white transition-colors w-full group">
+        <Link href="/dashboard/configuracoes" className={getLinkClasses('/dashboard/configuracoes')}>
           <Settings className="w-5 h-5" />
           <span className="text-sm font-medium">Configurações</span>
-        </button>
-        <button className="flex items-center justify-between w-full p-2 mt-2 rounded-xl hover:bg-white/10 transition-colors text-left group">
+        </Link>
+        <Link href="/dashboard/configuracoes" className="flex items-center justify-between w-full p-2 mt-2 rounded-xl hover:bg-white/10 transition-colors text-left group">
           <div className="flex items-center gap-3">
             <img 
               src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop&crop=faces" 
@@ -79,11 +79,11 @@ export function Sidebar() {
             />
             <div className="flex flex-col">
               <span className="text-sm font-semibold text-white leading-tight">Rafael Costa</span>
-              <span className="text-xs text-gray-400 leading-tight">rafael@gourmetize</span>
+              <span className="text-xs text-gray-400 leading-tight">rafael@gourmetize.com</span>
             </div>
           </div>
           <MoreHorizontal className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
-        </button>
+        </Link>
       </div>
     </aside>
   )

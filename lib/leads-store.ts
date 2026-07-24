@@ -15,7 +15,7 @@ export interface LeadItem {
   crmStage?: string
 }
 
-const STORAGE_KEY = 'mub_dashboard_leads'
+const STORAGE_KEY = 'mub_dashboard_leads_v2_clean'
 
 export const DEFAULT_LEADS: LeadItem[] = []
 
@@ -27,9 +27,34 @@ export function getStoredLeads(): LeadItem[] {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
       return []
     }
-    return JSON.parse(raw)
+    const parsed: LeadItem[] = JSON.parse(raw)
+    // Filter out artificial legacy leads if any remain
+    const cleanLeads = parsed.filter(item => 
+      item.id !== '1' && 
+      item.id !== '2' && 
+      item.id !== '3' && 
+      item.id !== '4' && 
+      item.restaurante !== 'Pizzaria Donatello' &&
+      item.restaurante !== 'Sabor & Cia' &&
+      item.restaurante !== 'Sushi Express' &&
+      item.restaurante !== 'Burger King Centro' &&
+      item.restaurante !== 'Cantina Bella'
+    )
+    if (cleanLeads.length !== parsed.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanLeads))
+    }
+    return cleanLeads
   } catch (e) {
     return []
+  }
+}
+
+export function deleteLead(leadId: string): void {
+  const existing = getStoredLeads()
+  const updated = existing.filter(item => item.id !== leadId)
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    window.dispatchEvent(new Event('mub_leads_updated'))
   }
 }
 
