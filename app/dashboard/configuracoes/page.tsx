@@ -24,8 +24,9 @@ import {
 import { resetStoredLeads, syncLeadsFromSupabase } from "@/lib/leads-store"
 import { getSupabaseConfig, saveSupabaseConfig, testSupabaseConnection } from "@/lib/supabase"
 
-const SQL_SCRIPT = `-- Executar no SQL Editor do Supabase para criar a tabela 'leads'
-create table if not exists leads (
+const SQL_SCRIPT = `-- ATENÇÃO: SELECIONE TUDO NO SQL EDITOR DO SUPABASE (Ctrl + A) E APAGUE ANTES DE COLAR ESTE CÓDIGO!
+
+create table if not exists public.leads (
   id text primary key,
   restaurante text,
   contato text,
@@ -48,9 +49,15 @@ create table if not exists leads (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- Habilitar RLS e permitir inserção/leitura
-alter table leads enable row level security;
-create policy "Acesso livre para insert e select anonimo" on leads for all using (true) with check (true);`
+-- Habilitar RLS
+alter table public.leads enable row level security;
+
+-- Limpar quaisquer políticas conflitantes antigas
+drop policy if exists "Acesso livre para insert e select anonimo" on public.leads;
+drop policy if exists "Allow public access to leads" on public.leads;
+
+-- Criar política de acesso permissiva para o site e painel
+create policy "Acesso livre para insert e select anonimo" on public.leads for all using (true) with check (true);`
 
 export default function ConfiguracoesPage() {
   const [gestor, setGestor] = useState("Administração Gourmetize")
@@ -271,8 +278,8 @@ export default function ConfiguracoesPage() {
                   <p className="font-bold">Como resolver em 3 passos simples:</p>
                   <ol className="list-decimal pl-4 space-y-1">
                     <li>Clique no botão <span className="font-bold">"Copiar SQL"</span> no bloco abaixo.</li>
-                    <li>No painel do Supabase (<a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline font-bold">supabase.com/dashboard</a>), abra o menu <span className="font-bold">SQL Editor</span>.</li>
-                    <li>Cole o código SQL, clique em <span className="font-bold">"Run"</span> para executar e depois clique no botão verde <span className="font-bold">"Salvar e Testar Conexão Supabase"</span> aqui.</li>
+                    <li>No SQL Editor do Supabase, <span className="font-bold underline text-red-700">SELECIONE TUDO E APAGUE TODO O TEXTO ANTIGO</span> (Ctrl+A depois Delete).</li>
+                    <li>Cole o novo código SQL, clique em <span className="font-bold">"Run"</span> para executar e em seguida clique no botão verde <span className="font-bold">"Salvar e Testar Conexão Supabase"</span> aqui.</li>
                   </ol>
                 </div>
               )}
