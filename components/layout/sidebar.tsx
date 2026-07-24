@@ -49,7 +49,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     setShowProfileMenu(false)
-    // Redirect user to home landing page
+    localStorage.setItem("mub_auth_authenticated", "false")
     window.location.href = "/"
   }
 
@@ -115,15 +115,6 @@ export function Sidebar() {
               >
                 <Globe className="w-4 h-4 text-[#ff6b00]" />
                 Voltar para o Site
-              </Link>
-
-              <Link 
-                href="/dashboard/configuracoes" 
-                onClick={() => setShowProfileMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-              >
-                <Settings className="w-4 h-4 text-gray-400" />
-                Configurações
               </Link>
 
               <button
