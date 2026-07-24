@@ -1,7 +1,5 @@
 {
   "name": "novo-site-gourmetize",
-  "compatibility_date": "2024-03-20",
-  "assets": {
-    "directory": ".next"
-  }
+  "compatibility_date": "2024-09-23",
+  "pages_build_output_dir": ".vercel/output/static"
 }

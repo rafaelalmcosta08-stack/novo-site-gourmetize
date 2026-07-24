@@ -1,20 +1,30 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
+import { Inter, JetBrains_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import { LenisProvider } from "@/components/lenis-provider"
+import ClickSpark from "@/components/click-spark"
 import "./globals.css"
 
-const inter = Inter({
+const _inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 })
 
+const _jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+})
+
 export const metadata: Metadata = {
-  title: "Emitly | CRM Dashboard",
-  description: "Manage your campaigns and view performance metrics.",
+  title: "GiGi Energy Drink | Dream Big, Drink GiGi",
+  description: "Zero sugar, 75mg caffeine, 100% natural flavors. The energy drink for dreamers and doers.",
+  keywords: ["energy drink", "zero sugar", "natural energy", "GiGi", "caffeine"],
+    generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#AFFF00",
 }
 
 export default function RootLayout({
@@ -24,8 +34,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased bg-[#f3f4f6]`}>
-        {children}
+      <body className={`font-sans antialiased`}>
+        <ClickSpark
+          sparkColor="#AFFF00"
+          sparkSize={12}
+          sparkRadius={20}
+          sparkCount={8}
+          duration={400}
+          easing="ease-out"
+        >
+          <LenisProvider>{children}</LenisProvider>
+        </ClickSpark>
+        <Analytics />
       </body>
     </html>
   )
