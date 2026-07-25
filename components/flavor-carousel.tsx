@@ -87,23 +87,33 @@ const flavors = [
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 40 : -40,
+    x: direction > 0 ? "40%" : "-40%",
     opacity: 0,
+    scale: 0.95,
+    filter: "blur(8px)",
   }),
   center: {
-    x: 0,
+    x: "0%",
     opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
     transition: {
-      duration: 0.3,
-      ease: [0.25, 0.1, 0.25, 1.0],
+      x: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.45, ease: "easeOut" },
+      scale: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+      filter: { duration: 0.45, ease: "easeOut" },
     },
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -40 : 40,
+    x: direction > 0 ? "-40%" : "40%",
     opacity: 0,
+    scale: 0.95,
+    filter: "blur(8px)",
     transition: {
-      duration: 0.2,
-      ease: [0.25, 0.1, 0.25, 1.0],
+      x: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.35, ease: "easeIn" },
+      scale: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+      filter: { duration: 0.35, ease: "easeIn" },
     },
   }),
 }
@@ -219,8 +229,8 @@ export function FlavorCarousel() {
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
 
-            <div className="relative w-full max-w-5xl lg:max-w-6xl min-h-[300px]">
-              <AnimatePresence mode="wait" custom={direction} initial={false}>
+            <div className="relative w-full max-w-5xl lg:max-w-6xl grid grid-cols-1 grid-rows-1 overflow-hidden rounded-3xl shadow-xl border-2 border-[#121212]/10 bg-[#0d1217]">
+              <AnimatePresence initial={false} custom={direction}>
                 <motion.div
                   key={currentFlavor.id}
                   custom={direction}
@@ -228,17 +238,17 @@ export function FlavorCarousel() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="w-full"
+                  className="col-start-1 row-start-1 w-full h-full"
                 >
                   <motion.div
-                    className={`bg-[#0d1217] rounded-3xl border-2 border-[#121212]/10 shadow-xl overflow-hidden ${currentFlavor.fullCardImage ? "p-0" : "p-6 md:p-8"}`}
+                    className={`bg-[#0d1217] overflow-hidden ${currentFlavor.fullCardImage ? "p-0" : "p-6 md:p-8"}`}
                     style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
                   >
                   {currentFlavor.fullCardImage ? (
-                    <div className="relative w-full rounded-3xl overflow-hidden bg-[#0d1217]">
-                      <picture className="block w-full">
+                    <div className="relative w-full aspect-[380/680] md:aspect-[1200/628] overflow-hidden bg-[#0d1217]">
+                      <picture className="block w-full h-full">
                         {currentFlavor.fullCardImageMobile && (
                           <source
                             media="(max-width: 767px)"
@@ -248,7 +258,7 @@ export function FlavorCarousel() {
                         <img
                           src={currentFlavor.fullCardImage}
                           alt={currentFlavor.name}
-                          className="w-full h-auto object-cover rounded-3xl block min-h-[220px]"
+                          className="w-full h-full object-cover block"
                         />
                       </picture>
                     </div>
