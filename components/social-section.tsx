@@ -50,7 +50,7 @@ export function SocialSection() {
           className="text-center mb-12"
         >
           <motion.span
-            className="inline-block font-mono text-[#FF6B35] text-xs tracking-[0.25em] uppercase mb-2 font-semibold"
+            className="inline-block font-mono text-[#AFFF00] text-xs tracking-[0.25em] uppercase mb-2 font-semibold"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -63,7 +63,7 @@ export function SocialSection() {
             Tire Suas Dúvidas
           </h2>
 
-          <div className="w-12 h-1 bg-[#FF6B35] mx-auto mt-4 rounded-full" />
+          <div className="w-12 h-1 bg-[#AFFF00] mx-auto mt-4 rounded-full" />
         </motion.div>
 
         <div className="space-y-4">
@@ -76,7 +76,7 @@ export function SocialSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.08 }}
-                className="bg-[#1a1a1a] rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#FF6B35]/50"
+                className="bg-[#1a1a1a] rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#AFFF00]/50"
               >
                 <button
                   onClick={() => toggleAccordion(index)}
@@ -87,7 +87,7 @@ export function SocialSection() {
                   </span>
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${
-                      isOpen ? "bg-[#FF6B35] text-white" : "bg-white/5 text-white/70"
+                      isOpen ? "bg-[#AFFF00] text-[#121212]" : "bg-white/5 text-white/70"
                     }`}
                   >
                     <ChevronDown
