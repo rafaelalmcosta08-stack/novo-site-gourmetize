@@ -117,36 +117,35 @@ export function FlavorCarousel() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-center mb-10"
+          className="text-center mb-12 max-w-5xl mx-auto px-4"
         >
-          <motion.span
-            className="font-mono text-[#121212]/60 text-xs tracking-widest"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            OUR FLAVOURS
-          </motion.span>
-          <h2 className="text-3xl md:text-5xl font-black text-[#121212] tracking-tighter mt-2 overflow-hidden">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-[#121212] tracking-tighter leading-[1.02] text-center max-w-5xl mx-auto pt-2 pb-1">
             <motion.span
-              className="inline-block"
-              initial={{ y: 80 }}
-              whileInView={{ y: 0 }}
+              className="inline-block pt-1 pb-1"
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
             >
-              CHOOSE YOUR{" "}
-            </motion.span>
+              SOLUÇÕES DE ALTO IMPACTO{" "}
+            </motion.span>{" "}
             <motion.span
-              className="inline-block"
-              style={{ color: currentFlavor.accentColor }}
-              initial={{ y: 80 }}
-              whileInView={{ y: 0 }}
+              className="inline-block text-[#AFFF00] pt-1 pb-1"
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.1 }}
             >
-              FUEL
+              PARA O SEU RESTAURANTE
+            </motion.span>{" "}
+            <motion.span
+              className="inline-block pt-1 pb-1"
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.2 }}
+            >
+              VENDER MAIS.
             </motion.span>
           </h2>
         </motion.div>

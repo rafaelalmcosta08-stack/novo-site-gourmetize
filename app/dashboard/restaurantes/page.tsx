@@ -1,7 +1,7 @@
 "use client"
 import { Search, Filter, Store, Building2, MapPin, Briefcase, Phone, Mail, Calendar } from "lucide-react"
 import { useState, useEffect } from "react"
-import { getStoredLeads, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, syncLeadsFromSupabase, LeadItem } from "@/lib/leads-store"
 import Link from "next/link"
 
 export default function RestaurantesPage() {
@@ -14,6 +14,7 @@ export default function RestaurantesPage() {
 
   useEffect(() => {
     loadData()
+    syncLeadsFromSupabase()
     const handleUpdate = () => loadData()
     window.addEventListener("mub_leads_updated", handleUpdate)
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)

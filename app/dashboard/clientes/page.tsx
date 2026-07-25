@@ -2,7 +2,7 @@
 import { Search, Filter, Store, Calendar, ExternalLink, Phone, Mail, UserCheck } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { getStoredLeads, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, syncLeadsFromSupabase, LeadItem } from "@/lib/leads-store"
 
 export default function ClientesPage() {
   const [leads, setLeads] = useState<LeadItem[]>([])
@@ -14,6 +14,7 @@ export default function ClientesPage() {
 
   useEffect(() => {
     loadData()
+    syncLeadsFromSupabase()
     const handleUpdate = () => loadData()
     window.addEventListener("mub_leads_updated", handleUpdate)
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Search, Filter, Plus, MoreHorizontal, Clock, DollarSign, User, Phone, Tag, Trash2, ArrowRightLeft, MessageCircle } from "lucide-react"
 import Link from "next/link"
-import { getStoredLeads, updateLeadStage, deleteLead, LeadItem } from "@/lib/leads-store"
+import { getStoredLeads, updateLeadStage, deleteLead, syncLeadsFromSupabase, LeadItem } from "@/lib/leads-store"
 
 type StagesType = {
   [key: string]: {
@@ -45,6 +45,7 @@ export default function CRMFunilPage() {
 
   useEffect(() => {
     loadData()
+    syncLeadsFromSupabase()
     const handleUpdate = () => loadData()
     window.addEventListener("mub_leads_updated", handleUpdate)
     return () => window.removeEventListener("mub_leads_updated", handleUpdate)

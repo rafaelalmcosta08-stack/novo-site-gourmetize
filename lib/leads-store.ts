@@ -121,12 +121,13 @@ function mapLeadToSupabaseRow(lead: LeadItem) {
 }
 
 /**
- * Sync leads from Supabase directly to localStorage and trigger re-render
+ * Sync leads from Supabase directly to localStorage and trigger re-render without overwriting unsynced local leads
  */
 export async function syncLeadsFromSupabase(): Promise<LeadItem[]> {
+  const localLeads = getStoredLeads()
   const supabase = getSupabaseClient()
   if (!supabase) {
-    return getStoredLeads()
+    return localLeads
   }
 
   try {
@@ -137,25 +138,46 @@ export async function syncLeadsFromSupabase(): Promise<LeadItem[]> {
 
     if (error) {
       console.warn('Erro ao buscar leads do Supabase:', error.message)
-      return getStoredLeads()
+      return localLeads
     }
 
     if (data && Array.isArray(data)) {
       const remoteLeads = data.map(mapSupabaseRowToLead)
+
+      // Merge local and remote leads by ID so local leads are never lost
+      const remoteIds = new Set(remoteLeads.map(l => l.id))
+      const unsyncedLocal = localLeads.filter(l => !remoteIds.has(l.id))
+
+      // Push unsynced local leads to Supabase in background
+      if (unsyncedLocal.length > 0) {
+        const rowsToInsert = unsyncedLocal.map(mapLeadToSupabaseRow)
+        supabase.from('leads').insert(rowsToInsert).then(({ error }) => {
+          if (error) console.warn('Erro ao auto-sincronizar leads locais para Supabase:', error.message)
+          else console.log('Leads locais sincronizados com sucesso no Supabase!')
+        }).catch(err => console.warn('Erro na auto-sincronização:', err))
+      }
+
+      const mergedMap = new Map<string, LeadItem>()
+      // Put unsynced local leads first, then remote overrides
+      unsyncedLocal.forEach(item => mergedMap.set(item.id, item))
+      remoteLeads.forEach(item => mergedMap.set(item.id, item))
+
+      const merged = Array.from(mergedMap.values()).sort((a, b) => b.timestamp - a.timestamp)
+
       if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteLeads))
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
         window.dispatchEvent(new Event('mub_leads_updated'))
       }
-      return remoteLeads
+      return merged
     }
   } catch (err) {
     console.warn('Falha na sincronização com Supabase:', err)
   }
 
-  return getStoredLeads()
+  return localLeads
 }
 
-export function saveLead(leadData: Omit<LeadItem, 'id' | 'timestamp' | 'data' | 'status' | 'crmStage'>): LeadItem {
+export async function saveLead(leadData: Omit<LeadItem, 'id' | 'timestamp' | 'data' | 'status' | 'crmStage'>): Promise<LeadItem> {
   const existing = getStoredLeads()
   const now = new Date()
   const day = String(now.getDate()).padStart(2, '0')
@@ -171,29 +193,35 @@ export function saveLead(leadData: Omit<LeadItem, 'id' | 'timestamp' | 'data' | 
     status: 'Novo',
     crmStage: 'lead-recebido',
     plano: 'R$ 350,00',
-    dias: 0
+    dias: 0,
+    origem: 'Orgânico / Site',
+    tempoParadoDias: 0,
+    desconto: 0,
+    valorMensal: 0,
+    motivoCancelamento: ''
   }
 
-  const updated = [newLead, ...existing]
+  // 1. Immediately update localStorage & notify UI
+  const updated = [newLead, ...existing.filter(i => i.id !== newLead.id)]
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
     window.dispatchEvent(new Event('mub_leads_updated'))
   }
 
-  // Sync to Supabase in background
+  // 2. Sync to Supabase in background or await
   const supabase = getSupabaseClient()
   if (supabase) {
-    supabase
-      .from('leads')
-      .insert([mapLeadToSupabaseRow(newLead)])
-      .then(({ error }) => {
-        if (error) {
-          console.error('Erro ao salvar lead no Supabase:', error.message)
-        } else {
-          console.log('Lead salvo com sucesso no Supabase!')
-        }
-      })
-      .catch(err => console.error('Erro na requisição Supabase:', err))
+    try {
+      const row = mapLeadToSupabaseRow(newLead)
+      const { data, error } = await supabase.from('leads').insert([row]).select()
+      if (error) {
+        console.error('Erro ao salvar lead no Supabase:', error.message)
+      } else {
+        console.log('Lead salvo com sucesso no Supabase!', data)
+      }
+    } catch (err) {
+      console.error('Erro na requisição Supabase:', err)
+    }
   }
 
   return newLead

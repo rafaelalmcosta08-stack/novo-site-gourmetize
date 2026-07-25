@@ -95,7 +95,7 @@ export function LeadFormSection() {
     return newErrors
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const validationErrors = validate()
 
@@ -109,8 +109,8 @@ export function LeadFormSection() {
     setFormAlert(null)
     setSubmittedSuccess(true)
 
-    // Save submission to Dashboard store
-    saveLead({
+    // Save submission to Dashboard store & Supabase
+    await saveLead({
       restaurante: formData.empresa,
       contato: formData.nome,
       email: formData.email,
