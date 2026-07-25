@@ -1,73 +1,27 @@
 "use client"
 
-import { motion, useInView } from "framer-motion"
-import { useState, useRef } from "react"
-import Link from "next/link"
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
-    },
-  },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 20,
-    },
-  },
-}
+import { motion } from "framer-motion"
+import { useRef } from "react"
 
 export function Footer() {
-  const [email, setEmail] = useState("")
-  const [isHovering, setIsHovering] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const footerRef = useRef(null)
-  const isInView = useInView(footerRef, { once: true, margin: "-100px" })
 
-  const handleSubmit = () => {
-    setIsSubmitting(true)
-    setTimeout(() => setIsSubmitting(false), 2000)
+  const handleScrollToForm = () => {
+    const formSection = document.querySelector("#formulario") || document.querySelector("form")
+    if (formSection) {
+      formSection.scrollIntoView({ behavior: "smooth" })
+    }
   }
 
-  const footerLinks = [
-    {
-      title: "Products",
-      links: ["Lemon Lime", "Pineapple Coconut", "Mystery", "Bundles"],
-    },
-    {
-      title: "Quick Links",
-      links: ["Home", "Flavours", "Creators", "Distributors"],
-    },
-    {
-      title: "Company",
-      links: ["About", "Careers", "Press", "Contact"],
-    },
-    {
-      title: "Legal",
-      links: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
-    },
-  ]
-
   return (
-    <footer ref={footerRef} id="careers" className="relative bg-[#121212] pt-16 pb-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <footer ref={footerRef} id="careers" className="relative bg-[#121212] pt-16 pb-10 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-center mb-12"
+          className="text-center mb-10"
         >
           <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[0.9] overflow-hidden">
             <motion.span
@@ -77,7 +31,7 @@ export function Footer() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1] }}
             >
-              READY TO
+              PRONTA PRA
             </motion.span>
             <motion.span
               className="block text-[#AFFF00]"
@@ -86,7 +40,7 @@ export function Footer() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.1 }}
             >
-              LEVEL UP?
+              VENDER MAIS?
             </motion.span>
           </h2>
         </motion.div>
@@ -96,53 +50,33 @@ export function Footer() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-xl mx-auto mb-12"
+          className="flex flex-col items-center justify-center max-w-xl mx-auto mb-10"
         >
-          <div className="flex flex-col sm:flex-row gap-3">
-            <motion.div className="flex-1 relative" whileFocus={{ scale: 1.02 }}>
-              <motion.input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full bg-white/5 border-2 border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/40 font-mono text-sm focus:outline-none focus:border-[#AFFF00] transition-all duration-300"
-                whileFocus={{ borderColor: "#AFFF00" }}
-              />
-              <motion.div
-                className="absolute inset-0 rounded-xl pointer-events-none"
-                animate={email.length > 0 ? { boxShadow: "0 0 20px rgba(175,255,0,0.2)" } : { boxShadow: "none" }}
-              />
-            </motion.div>
-            <motion.button
-              className="bg-[#AFFF00] text-[#121212] px-6 py-3 rounded-xl font-bold text-sm tracking-wide whitespace-nowrap relative overflow-hidden"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              onClick={handleSubmit}
-            >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 0.5 }}
-              />
-              <motion.span
-                className="relative z-10"
-                animate={isSubmitting ? { opacity: [1, 0.5, 1] } : {}}
-                transition={{ duration: 0.5, repeat: isSubmitting ? Number.POSITIVE_INFINITY : 0 }}
-              >
-                {isSubmitting ? "Joining..." : "Get 25% Off"}
-              </motion.span>
-            </motion.button>
-          </div>
+          <motion.button
+            className="bg-[#AFFF00] text-[#121212] px-8 py-4 rounded-xl font-black text-base md:text-lg tracking-wide whitespace-nowrap relative overflow-hidden shadow-lg cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            onClick={handleScrollToForm}
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+              initial={{ x: "-100%" }}
+              whileHover={{ x: "100%" }}
+              transition={{ duration: 0.5 }}
+            />
+            <span className="relative z-10 flex items-center gap-2">
+              Solicitar Análise Gratuita →
+            </span>
+          </motion.button>
           <motion.p
-            className="text-white/40 font-mono text-xs mt-2 text-center"
+            className="text-white/40 font-mono text-xs mt-3 text-center"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
           >
-            Join 50k+ dreamers. No spam, just energy.
+            Sem spam, só oportunidade real pro seu restaurante.
           </motion.p>
         </motion.div>
 
@@ -154,36 +88,8 @@ export function Footer() {
           transition={{ delay: 0.3 }}
         >
           <p className="text-white/60 font-mono text-xs max-w-xl mx-auto leading-relaxed">
-            GiGi Energy is a better-for-you energy drink crafted with natural flavors, zero sugar, and a clean energy
-            formula. Fuel your ambition without the crash.
+            Assessoria de marketing especializada para restaurantes, oferecendo cardápio digital, landing page exclusiva e painel de gestão completo.
           </p>
-        </motion.div>
-
-        <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-t border-white/10"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          {footerLinks.map((section, sectionIndex) => (
-            <motion.div key={section.title} variants={itemVariants}>
-              <h4 className="font-bold text-white text-sm mb-3">{section.title}</h4>
-              <ul className="space-y-2">
-                {section.links.map((item) => (
-                  <li key={item}>
-                    <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
-                      <Link
-                        href="#"
-                        className="text-white/60 hover:text-[#AFFF00] font-mono text-xs transition-colors inline-block"
-                      >
-                        {item}
-                      </Link>
-                    </motion.div>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
         </motion.div>
 
         <motion.div
@@ -198,47 +104,26 @@ export function Footer() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            <span className="text-xl font-black">
-              <span className="text-white">Gi</span>
-              <span className="text-[#AFFF00]">Gi</span>
+            <span className="text-xl font-black tracking-tight">
+              <span className="text-white">Assessoria </span>
+              <span className="text-[#AFFF00]">Gourmetize</span>
             </span>
           </motion.div>
 
-          <p className="text-white/40 font-mono text-xs">© 2026 GiGi Energy. All rights reserved.</p>
-
-          <motion.p
-            className="text-white/30 font-mono text-xs cursor-pointer"
-            onHoverStart={() => setIsHovering(true)}
-            onHoverEnd={() => setIsHovering(false)}
-            animate={
-              isHovering
-                ? {
-                    rotate: [0, -5, 5, -5, 5, 0],
-                    scale: [1, 1.1, 1],
-                    color: "#AFFF00",
-                  }
-                : {
-                    rotate: 0,
-                    scale: 1,
-                    color: "rgba(255,255,255,0.3)",
-                  }
-            }
-            transition={{ duration: 0.5 }}
-          >
-            made with energy
-          </motion.p>
+          <p className="text-white/40 font-mono text-xs">© 2026 Assessoria Gourmetize. Todos os direitos reservados.</p>
         </motion.div>
       </div>
 
       <motion.div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[15rem] md:text-[30rem] font-black text-white/[0.02] pointer-events-none select-none leading-none"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10rem] sm:text-[15rem] md:text-[22rem] font-black text-white/[0.02] pointer-events-none select-none leading-none whitespace-nowrap"
         initial={{ y: 100, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1, ease: "easeOut" }}
       >
-        GiGi
+        Gourmetize
       </motion.div>
     </footer>
   )
 }
+

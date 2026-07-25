@@ -1,160 +1,124 @@
 "use client"
 
-import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
-import { Instagram } from "lucide-react"
-import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState, useRef } from "react"
+import { ChevronDown } from "lucide-react"
 
-const instagramPosts = [
-  { image: "/energy-drink-lifestyle-gym-workout.jpg", likes: "2.4k" },
-  { image: "/content-creator-streaming-setup-neon.jpg", likes: "1.8k" },
-  { image: "/skateboarder-urban-street-sunset.jpg", likes: "3.2k" },
-  { image: "/student-studying-library-late-night.jpg", likes: "956" },
-  { image: "/entrepreneur-startup-office-meeting.jpg", likes: "1.5k" },
-  { image: "/athlete-fitness-morning-routine.jpg", likes: "2.1k" },
+const faqItems = [
+  {
+    question: "Quanto tempo leva pra ver resultado?",
+    answer: "[RESPOSTA]",
+  },
+  {
+    question: "Preciso ter uma equipe própria de marketing?",
+    answer: "[RESPOSTA]",
+  },
+  {
+    question: "Funciona pra restaurante que só trabalha com delivery, ou só salão também?",
+    answer: "[RESPOSTA]",
+  },
+  {
+    question: "O Painel do Gestor substitui o sistema que eu já uso?",
+    answer: "[RESPOSTA]",
+  },
+  {
+    question: "Tem contrato de fidelidade / tempo mínimo?",
+    answer: "[RESPOSTA]",
+  },
+  {
+    question: "Quanto custa?",
+    answer: "[RESPOSTA]",
+  },
 ]
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.15,
-    },
-  },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 20 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-      damping: 20,
-    },
-  },
-}
-
 export function SocialSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-50px" })
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index)
+  }
 
   return (
-    <section id="creators" className="relative py-16 bg-[#121212] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="faq" className="relative py-20 bg-[#121212] overflow-hidden border-t border-white/5">
+      <div ref={ref} className="max-w-4xl mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
           <motion.span
-            className="font-mono text-[#AFFF00] text-xs tracking-widest inline-block"
-            initial={{ opacity: 0, y: 20 }}
+            className="inline-block font-mono text-[#FF6B35] text-xs tracking-[0.25em] uppercase mb-2 font-semibold"
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            FOLLOW THE ENERGY
+            PERGUNTAS FREQUENTES
           </motion.span>
-          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter mt-2 overflow-hidden">
-            <motion.span
-              className="inline-block"
-              initial={{ y: 100 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.2 }}
-            >
-              @GIGIENERGY
-            </motion.span>
-            <motion.span
-              className="text-[#AFFF00] inline-block"
-              initial={{ y: 100 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.3 }}
-            >
-              .IN
-            </motion.span>
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter leading-tight">
+            Tire Suas Dúvidas
           </h2>
+
+          <div className="w-12 h-1 bg-[#FF6B35] mx-auto mt-4 rounded-full" />
         </motion.div>
 
-        <motion.div
-          ref={ref}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          {instagramPosts.map((post, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              whileHover={{
-                scale: 1.05,
-                zIndex: 10,
-                transition: { type: "spring", stiffness: 300, damping: 20 },
-              }}
-              className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer"
-            >
-              <Image
-                src={post.image || "/placeholder.svg"}
-                alt={`Instagram post ${index + 1}`}
-                fill
-                className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-              />
+        <div className="space-y-4">
+          {faqItems.map((item, index) => {
+            const isOpen = openIndex === index
+            return (
               <motion.div
-                className="absolute inset-0 bg-[#AFFF00]/0 group-hover:bg-[#AFFF00]/20 flex items-center justify-center"
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="bg-[#1a1a1a] rounded-2xl border border-white/10 overflow-hidden transition-all duration-300 hover:border-[#FF6B35]/50"
               >
-                <motion.div
-                  className="flex items-center gap-1 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  initial={{ y: 10 }}
-                  whileHover={{ y: 0 }}
+                <button
+                  onClick={() => toggleAccordion(index)}
+                  className="w-full text-left p-6 flex items-center justify-between gap-4 cursor-pointer focus:outline-none"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                  </svg>
-                  <span className="font-mono text-xs">{post.likes}</span>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
+                  <span className="font-bold text-white text-base md:text-lg pr-2">
+                    {item.question}
+                  </span>
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                      isOpen ? "bg-[#FF6B35] text-white" : "bg-white/5 text-white/70"
+                    }`}
+                  >
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : "rotate-0"
+                      }`}
+                    />
+                  </div>
+                </button>
 
-        <motion.div
-          className="flex justify-center mt-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          <motion.a
-            href="https://instagram.com/gigienergy.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-[#AFFF00] text-[#121212] px-6 py-3 rounded-full font-bold text-sm tracking-wide relative overflow-hidden group"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
-              whileHover={{ x: "200%" }}
-              transition={{ duration: 0.6 }}
-            />
-            <Instagram className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">Follow @gigienergy.in</span>
-          </motion.a>
-        </motion.div>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.25, 0.4, 0.25, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 pt-1 text-white/70 font-mono text-sm leading-relaxed border-t border-white/5">
+                        {item.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
 }
+

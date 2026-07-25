@@ -2,32 +2,29 @@
 
 import { motion, useInView } from "framer-motion"
 import { useRef } from "react"
-import { Sparkles, Dumbbell, Building2, Calendar } from "lucide-react"
+import { LayoutDashboard, Globe, QrCode } from "lucide-react"
 
-const activations = [
+const portfolioItems = [
   {
-    icon: Sparkles,
-    title: "Free Tasting Events",
-    description: "Experience GiGi at exclusive tasting events near you.",
-    cta: "Find Events",
+    icon: LayoutDashboard,
+    title: "Painel do Gestor",
+    description:
+      "Controle financeiro, entregas e clientes em um só painel. Veja o Painel do Gestor funcionando com dados de exemplo.",
+    cta: "Ver Demonstração",
   },
   {
-    icon: Dumbbell,
-    title: "Gyms & Studios",
-    description: "Partner with us to fuel your fitness community.",
-    cta: "Partner With Us",
+    icon: Globe,
+    title: "Landing Page para Restaurantes",
+    description:
+      "Uma página própria pra captar reserva e pedido direto, sem depender só de marketplace.",
+    cta: "Ver Modelo",
   },
   {
-    icon: Building2,
-    title: "Corporate Offices",
-    description: "Power up your workplace. Bulk orders available.",
-    cta: "Get Quote",
-  },
-  {
-    icon: Calendar,
-    title: "Event Organizers",
-    description: "Sponsor your next event with GiGi energy.",
-    cta: "Sponsor Event",
+    icon: QrCode,
+    title: "Cardápio Digital",
+    description:
+      "Cardápio online com QR code, atualizado por você, sem custo de impressão.",
+    cta: "Ver Exemplo",
   },
 ]
 
@@ -61,102 +58,81 @@ export function ActivationsSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section id="distributors" className="relative py-16 bg-white overflow-hidden">
+    <section id="portfolio" className="relative py-16 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.25, 0.4, 0.25, 1] }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
           <motion.span
-            className="font-mono text-[#121212]/60 text-xs tracking-widest inline-block"
-            initial={{ opacity: 0, y: 20 }}
+            className="inline-block font-mono text-[#121212]/60 text-xs tracking-[0.25em] uppercase mb-2 font-semibold"
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
           >
-            ACTIVATIONS
+            PORTFÓLIO
           </motion.span>
-          <h2 className="text-3xl md:text-5xl font-black text-[#121212] tracking-tighter mt-2 overflow-hidden">
-            <motion.span
-              className="inline-block"
-              initial={{ y: 100 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.2 }}
-            >
-              EXPERIENCE{" "}
-            </motion.span>
-            <motion.span
-              className="text-[#AFFF00] inline-block"
-              initial={{ y: 100 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: [0.25, 0.4, 0.25, 1], delay: 0.3 }}
-            >
-              GIGI
-            </motion.span>
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#121212] tracking-tighter max-w-4xl mx-auto leading-tight">
+            Veja como funciona na prática, antes de contratar
           </h2>
-          <motion.p
-            className="text-sm text-[#121212]/60 font-mono mt-2 max-w-xl mx-auto"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
-            From tasting events to corporate partnerships, bring GiGi into your world.
-          </motion.p>
+
+          <div className="w-12 h-1 bg-[#AFFF00] mx-auto mt-4 rounded-full" />
         </motion.div>
 
         <motion.div
           ref={ref}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
         >
-          {activations.map((activation, index) => (
+          {portfolioItems.map((item) => (
             <motion.div
-              key={activation.title}
+              key={item.title}
               variants={itemVariants}
               whileHover={{
                 y: -8,
                 scale: 1.02,
                 transition: { type: "spring", stiffness: 400, damping: 17 },
               }}
-              className="group bg-[#121212] rounded-2xl p-6 cursor-pointer relative overflow-hidden"
+              className="group bg-[#121212] rounded-2xl p-6 md:p-8 cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[300px]"
             >
               <motion.div
                 className="absolute inset-0 bg-[#AFFF00]/0 group-hover:bg-[#AFFF00]"
                 transition={{ duration: 0.4 }}
               />
 
-              <div className="relative z-10">
-                <motion.div
-                  className="w-11 h-11 rounded-xl bg-[#AFFF00] flex items-center justify-center mb-4 group-hover:bg-[#121212] transition-colors duration-300"
-                  whileHover={{ rotate: 10, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                >
-                  <activation.icon className="w-5 h-5 text-[#121212] group-hover:text-[#AFFF00] transition-colors duration-300" />
-                </motion.div>
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div>
+                  <motion.div
+                    className="w-12 h-12 rounded-xl bg-[#AFFF00] flex items-center justify-center mb-5 group-hover:bg-[#121212] transition-colors duration-300"
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
+                    <item.icon className="w-6 h-6 text-[#121212] group-hover:text-[#AFFF00] transition-colors duration-300" />
+                  </motion.div>
 
-                <h3 className="text-lg font-black text-white group-hover:text-[#121212] tracking-tight mb-2 transition-colors duration-300">
-                  {activation.title}
-                </h3>
-                <p className="text-white/60 group-hover:text-[#121212]/60 font-mono text-xs leading-relaxed mb-4 transition-colors duration-300">
-                  {activation.description}
-                </p>
+                  <h3 className="text-xl font-black text-white group-hover:text-[#121212] tracking-tight mb-3 transition-colors duration-300 leading-snug min-h-[56px] flex items-start">
+                    {item.title}
+                  </h3>
+                  <p className="text-white/60 group-hover:text-[#121212]/80 font-mono text-xs leading-relaxed mb-6 transition-colors duration-300">
+                    {item.description}
+                  </p>
+                </div>
 
                 <motion.button
-                  className="flex items-center gap-2 text-[#AFFF00] group-hover:text-[#121212] font-bold text-xs tracking-wide transition-colors duration-300"
+                  className="flex items-center gap-2 text-[#AFFF00] group-hover:text-[#121212] font-bold text-xs tracking-wide transition-colors duration-300 mt-auto pt-4 border-t border-white/10 group-hover:border-[#121212]/20"
                   whileHover={{ x: 4 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 >
-                  {activation.cta}
+                  {item.cta}
                   <motion.svg
-                    className="w-3 h-3"
+                    className="w-3.5 h-3.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -175,3 +151,4 @@ export function ActivationsSection() {
     </section>
   )
 }
+

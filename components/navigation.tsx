@@ -62,10 +62,9 @@ export function Navigation() {
 
   const navLinks = [
     { label: "Home", href: "#hero" },
-    { label: "Flavours", href: "#flavours" },
-    { label: "Creators", href: "#creators" },
-    { label: "Distributors", href: "#distributors" },
-    { label: "Careers", href: "#careers" },
+    { label: "Portfólio", href: "#portfolio" },
+    { label: "FAQ", href: "#faq" },
+    { label: "Análise Gratuita", href: "#formulario" },
   ]
 
   return (
