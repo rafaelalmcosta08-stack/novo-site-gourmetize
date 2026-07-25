@@ -88,6 +88,25 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Text Content */}
           <motion.div style={{ opacity }} className="space-y-5">
+            <motion.div
+              style={{ x: textX1 }}
+              variants={fadeUpVariants}
+              initial="hidden"
+              animate="visible"
+              custom={0}
+              className="mb-2"
+            >
+              <Image
+                src="https://res.cloudinary.com/epo1w9hl/image/upload/v1784957462/Design_sem_nome__5_-removebg-preview_aushzp.png"
+                alt="Gourmetize Logo"
+                width={200}
+                height={70}
+                className="h-12 md:h-16 w-auto object-contain"
+                priority
+                unoptimized
+              />
+            </motion.div>
+
             <div className="space-y-1 overflow-hidden">
               <motion.h1
                 style={{ x: textX1 }}

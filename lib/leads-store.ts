@@ -120,61 +120,76 @@ function mapLeadToSupabaseRow(lead: LeadItem) {
   }
 }
 
+function notifyUpdate() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('mub_leads_updated'))
+    try {
+      const channel = new BroadcastChannel('mub_leads_channel')
+      channel.postMessage({ type: 'LEADS_UPDATED' })
+      channel.close()
+    } catch (e) {
+      // BroadcastChannel not supported in some contexts
+    }
+  }
+}
+
 /**
- * Sync leads from Supabase directly to localStorage and trigger re-render without overwriting unsynced local leads
+ * Sync leads from Server API + Supabase directly to localStorage
  */
 export async function syncLeadsFromSupabase(): Promise<LeadItem[]> {
-  const localLeads = getStoredLeads()
-  const supabase = getSupabaseClient()
-  if (!supabase) {
-    return localLeads
-  }
+  let localLeads = getStoredLeads()
+  let apiLeads: LeadItem[] = []
 
+  // 1. Fetch from Server API route
   try {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .order('timestamp', { ascending: false })
-
-    if (error) {
-      console.warn('Erro ao buscar leads do Supabase:', error.message)
-      return localLeads
-    }
-
-    if (data && Array.isArray(data)) {
-      const remoteLeads = data.map(mapSupabaseRowToLead)
-
-      // Merge local and remote leads by ID so local leads are never lost
-      const remoteIds = new Set(remoteLeads.map(l => l.id))
-      const unsyncedLocal = localLeads.filter(l => !remoteIds.has(l.id))
-
-      // Push unsynced local leads to Supabase in background
-      if (unsyncedLocal.length > 0) {
-        const rowsToInsert = unsyncedLocal.map(mapLeadToSupabaseRow)
-        supabase.from('leads').insert(rowsToInsert).then(({ error }) => {
-          if (error) console.warn('Erro ao auto-sincronizar leads locais para Supabase:', error.message)
-          else console.log('Leads locais sincronizados com sucesso no Supabase!')
-        }).catch(err => console.warn('Erro na auto-sincronização:', err))
+    const res = await fetch('/api/leads', { cache: 'no-store' })
+    if (res.ok) {
+      const json = await res.json()
+      if (json.success && Array.isArray(json.leads)) {
+        apiLeads = json.leads
       }
-
-      const mergedMap = new Map<string, LeadItem>()
-      // Put unsynced local leads first, then remote overrides
-      unsyncedLocal.forEach(item => mergedMap.set(item.id, item))
-      remoteLeads.forEach(item => mergedMap.set(item.id, item))
-
-      const merged = Array.from(mergedMap.values()).sort((a, b) => b.timestamp - a.timestamp)
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
-        window.dispatchEvent(new Event('mub_leads_updated'))
-      }
-      return merged
     }
   } catch (err) {
-    console.warn('Falha na sincronização com Supabase:', err)
+    console.warn('Erro ao buscar da API de leads:', err)
   }
 
-  return localLeads
+  // 2. Fetch from Supabase if configured
+  let supabaseLeads: LeadItem[] = []
+  const supabase = getSupabaseClient()
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .order('timestamp', { ascending: false })
+
+      if (!error && data && Array.isArray(data)) {
+        supabaseLeads = data.map(mapSupabaseRowToLead)
+      }
+    } catch (err) {
+      console.warn('Falha ao buscar do Supabase:', err)
+    }
+  }
+
+  // 3. Merge all lead lists (local + api + supabase) by ID
+  const mergedMap = new Map<string, LeadItem>()
+  localLeads.forEach(item => mergedMap.set(item.id, item))
+  apiLeads.forEach(item => mergedMap.set(item.id, item))
+  supabaseLeads.forEach(item => mergedMap.set(item.id, item))
+
+  const merged = Array.from(mergedMap.values()).sort((a, b) => b.timestamp - a.timestamp)
+
+  // 4. Save merged back to localStorage and notify UI if count or content changed
+  if (typeof window !== 'undefined') {
+    const prevRaw = localStorage.getItem(STORAGE_KEY) || '[]'
+    const newRaw = JSON.stringify(merged)
+    if (prevRaw !== newRaw) {
+      localStorage.setItem(STORAGE_KEY, newRaw)
+      notifyUpdate()
+    }
+  }
+
+  return merged
 }
 
 export async function saveLead(leadData: Omit<LeadItem, 'id' | 'timestamp' | 'data' | 'status' | 'crmStage'>): Promise<LeadItem> {
@@ -205,20 +220,26 @@ export async function saveLead(leadData: Omit<LeadItem, 'id' | 'timestamp' | 'da
   const updated = [newLead, ...existing.filter(i => i.id !== newLead.id)]
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    window.dispatchEvent(new Event('mub_leads_updated'))
+    notifyUpdate()
   }
 
-  // 2. Sync to Supabase in background or await
+  // 2. Save to Server API Route
+  try {
+    await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLead)
+    })
+  } catch (err) {
+    console.error('Erro ao enviar lead para API server:', err)
+  }
+
+  // 3. Sync to Supabase in background
   const supabase = getSupabaseClient()
   if (supabase) {
     try {
       const row = mapLeadToSupabaseRow(newLead)
-      const { data, error } = await supabase.from('leads').insert([row]).select()
-      if (error) {
-        console.error('Erro ao salvar lead no Supabase:', error.message)
-      } else {
-        console.log('Lead salvo com sucesso no Supabase!', data)
-      }
+      await supabase.from('leads').insert([row])
     } catch (err) {
       console.error('Erro na requisição Supabase:', err)
     }
@@ -240,8 +261,15 @@ export function updateLeadStage(leadId: string, newStage: string) {
 
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    window.dispatchEvent(new Event('mub_leads_updated'))
+    notifyUpdate()
   }
+
+  // Update in API Route
+  fetch('/api/leads', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: leadId, crmStage: newStage })
+  }).catch(() => {})
 
   // Update in Supabase
   const supabase = getSupabaseClient()
@@ -262,8 +290,11 @@ export function deleteLead(leadId: string): void {
   const updated = existing.filter(item => item.id !== leadId)
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    window.dispatchEvent(new Event('mub_leads_updated'))
+    notifyUpdate()
   }
+
+  // Delete from API Route
+  fetch(`/api/leads?id=${leadId}`, { method: 'DELETE' }).catch(() => {})
 
   // Delete from Supabase
   const supabase = getSupabaseClient()
@@ -282,8 +313,11 @@ export function deleteLead(leadId: string): void {
 export function resetStoredLeads(): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
-    window.dispatchEvent(new Event('mub_leads_updated'))
+    notifyUpdate()
   }
+
+  // Reset API Route
+  fetch('/api/leads', { method: 'DELETE' }).catch(() => {})
 
   // Reset/Delete all in Supabase
   const supabase = getSupabaseClient()

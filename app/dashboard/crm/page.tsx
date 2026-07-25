@@ -45,10 +45,31 @@ export default function CRMFunilPage() {
 
   useEffect(() => {
     loadData()
-    syncLeadsFromSupabase()
-    const handleUpdate = () => loadData()
+    syncLeadsFromSupabase().then(() => loadData())
+
+    const handleUpdate = () => {
+      syncLeadsFromSupabase().then(() => loadData())
+    }
+
     window.addEventListener("mub_leads_updated", handleUpdate)
-    return () => window.removeEventListener("mub_leads_updated", handleUpdate)
+    window.addEventListener("storage", handleUpdate)
+
+    const interval = setInterval(() => {
+      syncLeadsFromSupabase().then(() => loadData())
+    }, 3000)
+
+    let broadcastChannel: BroadcastChannel | null = null
+    try {
+      broadcastChannel = new BroadcastChannel("mub_leads_channel")
+      broadcastChannel.onmessage = () => handleUpdate()
+    } catch (e) {}
+
+    return () => {
+      window.removeEventListener("mub_leads_updated", handleUpdate)
+      window.removeEventListener("storage", handleUpdate)
+      clearInterval(interval)
+      if (broadcastChannel) broadcastChannel.close()
+    }
   }, [])
 
   // Close card menu on click outside

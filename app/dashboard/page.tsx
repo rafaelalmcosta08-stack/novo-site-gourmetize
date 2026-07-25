@@ -21,14 +21,36 @@ export default function DashboardOverview() {
   useEffect(() => {
     loadData()
     syncLeadsFromSupabase().then(fetched => {
-      if (fetched && fetched.length > 0) setLeads(fetched)
+      setLeads(fetched)
     })
-    const handleUpdate = () => loadData()
+
+    const handleUpdate = () => {
+      syncLeadsFromSupabase().then(fetched => setLeads(fetched))
+    }
+
     window.addEventListener("mub_leads_updated", handleUpdate)
-    window.addEventListener("mub_supabase_config_changed", () => syncLeadsFromSupabase())
+    window.addEventListener("storage", handleUpdate)
+    window.addEventListener("mub_supabase_config_changed", handleUpdate)
+
+    // Poll every 3 seconds to keep dashboard updated with live form submissions
+    const interval = setInterval(() => {
+      syncLeadsFromSupabase().then(fetched => {
+        setLeads(fetched)
+      })
+    }, 3000)
+
+    let broadcastChannel: BroadcastChannel | null = null
+    try {
+      broadcastChannel = new BroadcastChannel("mub_leads_channel")
+      broadcastChannel.onmessage = () => handleUpdate()
+    } catch (e) {}
+
     return () => {
       window.removeEventListener("mub_leads_updated", handleUpdate)
-      window.removeEventListener("mub_supabase_config_changed", () => syncLeadsFromSupabase())
+      window.removeEventListener("storage", handleUpdate)
+      window.removeEventListener("mub_supabase_config_changed", handleUpdate)
+      clearInterval(interval)
+      if (broadcastChannel) broadcastChannel.close()
     }
   }, [])
 

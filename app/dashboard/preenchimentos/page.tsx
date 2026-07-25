@@ -15,11 +15,34 @@ export default function PreenchimentosPage() {
   useEffect(() => {
     loadData()
     syncLeadsFromSupabase().then(fetched => {
-      if (fetched && fetched.length > 0) setLeads(fetched)
+      setLeads(fetched)
     })
-    const handleUpdate = () => loadData()
+
+    const handleUpdate = () => {
+      syncLeadsFromSupabase().then(fetched => setLeads(fetched))
+    }
+
     window.addEventListener("mub_leads_updated", handleUpdate)
-    return () => window.removeEventListener("mub_leads_updated", handleUpdate)
+    window.addEventListener("storage", handleUpdate)
+
+    const interval = setInterval(() => {
+      syncLeadsFromSupabase().then(fetched => {
+        setLeads(fetched)
+      })
+    }, 3000)
+
+    let broadcastChannel: BroadcastChannel | null = null
+    try {
+      broadcastChannel = new BroadcastChannel("mub_leads_channel")
+      broadcastChannel.onmessage = () => handleUpdate()
+    } catch (e) {}
+
+    return () => {
+      window.removeEventListener("mub_leads_updated", handleUpdate)
+      window.removeEventListener("storage", handleUpdate)
+      clearInterval(interval)
+      if (broadcastChannel) broadcastChannel.close()
+    }
   }, [])
 
   const handleClearData = () => {
