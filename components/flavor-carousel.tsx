@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { motion, AnimatePresence, useSpring } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react"
 
@@ -63,6 +63,8 @@ const flavors = [
     badge: "BRANDING & FOTOS",
     subtitle: "Método Exclusivo Gourmetize",
     name: "FOTOGRAFIA & POSICIONAMENTO DE MARCA",
+    fullCardImage: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784949278/whatsapp_sales_machine_desktop_section_gyade0.png",
+    fullCardImageMobile: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784949287/premium_management_hybrid_section_v2_4_y2ttzi.png",
     image: "/mystery-energy-drink-can-silhouette.jpg",
     bgColor: "from-[#00D4FF]/15 via-[#00D4FF]/5 to-transparent",
     accentColor: "#00D4FF",
@@ -85,31 +87,23 @@ const flavors = [
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300,
+    x: direction > 0 ? 40 : -40,
     opacity: 0,
-    scale: 0.9,
-    rotateY: direction > 0 ? 15 : -15,
   }),
   center: {
     x: 0,
     opacity: 1,
-    scale: 1,
-    rotateY: 0,
     transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
+      duration: 0.3,
+      ease: [0.25, 0.1, 0.25, 1.0],
     },
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -300 : 300,
+    x: direction > 0 ? -40 : 40,
     opacity: 0,
-    scale: 0.9,
-    rotateY: direction > 0 ? -15 : 15,
     transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
+      duration: 0.2,
+      ease: [0.25, 0.1, 0.25, 1.0],
     },
   }),
 }
@@ -118,6 +112,20 @@ export function FlavorCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [[page, direction], setPage] = useState([0, 0])
   const currentFlavor = flavors[currentIndex]
+
+  // Preload all slide images to prevent image loading white flash
+  useEffect(() => {
+    flavors.forEach((flavor) => {
+      if (flavor.fullCardImage) {
+        const img = new window.Image()
+        img.src = flavor.fullCardImage
+      }
+      if (flavor.fullCardImageMobile) {
+        const imgMobile = new window.Image()
+        imgMobile.src = flavor.fullCardImageMobile
+      }
+    })
+  }, [])
 
   const rotateX = useSpring(0, { stiffness: 150, damping: 20 })
   const rotateY = useSpring(0, { stiffness: 150, damping: 20 })
@@ -128,8 +136,8 @@ export function FlavorCarousel() {
     const centerY = rect.top + rect.height / 2
     const x = (e.clientX - centerX) / (rect.width / 2)
     const y = (e.clientY - centerY) / (rect.height / 2)
-    rotateY.set(x * 5)
-    rotateX.set(-y * 5)
+    rotateY.set(x * 3)
+    rotateX.set(-y * 3)
   }
 
   const handleMouseLeave = () => {
@@ -138,6 +146,8 @@ export function FlavorCarousel() {
   }
 
   const paginate = (newDirection: number) => {
+    rotateX.set(0)
+    rotateY.set(0)
     const newIndex = (currentIndex + newDirection + flavors.length) % flavors.length
     setCurrentIndex(newIndex)
     setPage([page + newDirection, newDirection])
@@ -148,13 +158,14 @@ export function FlavorCarousel() {
 
   return (
     <section id="flavours" className="relative py-16 bg-white overflow-hidden">
-      <motion.div
-        className={`absolute inset-0 bg-gradient-to-br ${currentFlavor.bgColor}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        key={currentFlavor.id}
-      />
+      {/* Seamless background gradient cross-fade without unmounting */}
+      {flavors.map((flavor, index) => (
+        <div
+          key={flavor.id}
+          className={`absolute inset-0 bg-gradient-to-br ${flavor.bgColor} transition-opacity duration-500 ease-in-out pointer-events-none`}
+          style={{ opacity: index === currentIndex ? 1 : 0 }}
+        />
+      ))}
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <motion.div
@@ -208,25 +219,25 @@ export function FlavorCarousel() {
               <ChevronLeft className="w-5 h-5" />
             </motion.button>
 
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.div
-                key={currentFlavor.id}
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="relative w-full max-w-5xl lg:max-w-6xl"
-                style={{ perspective: 1000 }}
-              >
+            <div className="relative w-full max-w-5xl lg:max-w-6xl min-h-[300px]">
+              <AnimatePresence mode="wait" custom={direction} initial={false}>
                 <motion.div
-                  className={`bg-white rounded-3xl border-2 border-[#121212]/10 shadow-xl overflow-hidden ${currentFlavor.fullCardImage ? "p-0" : "p-6 md:p-8"}`}
-                  style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-                  onMouseMove={handleMouseMove}
-                  onMouseLeave={handleMouseLeave}
+                  key={currentFlavor.id}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full"
                 >
+                  <motion.div
+                    className={`bg-[#0d1217] rounded-3xl border-2 border-[#121212]/10 shadow-xl overflow-hidden ${currentFlavor.fullCardImage ? "p-0" : "p-6 md:p-8"}`}
+                    style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                  >
                   {currentFlavor.fullCardImage ? (
-                    <div className="relative w-full rounded-3xl overflow-hidden">
+                    <div className="relative w-full rounded-3xl overflow-hidden bg-[#0d1217]">
                       <picture className="block w-full">
                         {currentFlavor.fullCardImageMobile && (
                           <source
@@ -237,12 +248,12 @@ export function FlavorCarousel() {
                         <img
                           src={currentFlavor.fullCardImage}
                           alt={currentFlavor.name}
-                          className="w-full h-auto object-cover rounded-3xl block"
+                          className="w-full h-auto object-cover rounded-3xl block min-h-[220px]"
                         />
                       </picture>
                     </div>
                   ) : (
-                    <div className="grid md:grid-cols-12 gap-6 items-center">
+                    <div className="grid md:grid-cols-12 gap-6 items-center bg-white p-6 md:p-8">
                       <motion.div
                         className="md:col-span-5 relative aspect-[3/4] flex items-center justify-center min-h-[220px]"
                         whileHover={{ scale: 1.05 }}
@@ -278,7 +289,7 @@ export function FlavorCarousel() {
                           {currentFlavor.name}
                         </motion.h3>
 
-                        {/* Dark Feature Boxes from Image 1 */}
+                        {/* Dark Feature Boxes */}
                         <div className="space-y-2.5 pt-1">
                           {currentFlavor.features.map((feat, idx) => (
                             <motion.div
@@ -304,6 +315,7 @@ export function FlavorCarousel() {
                 </motion.div>
               </motion.div>
             </AnimatePresence>
+          </div>
 
             <motion.button
               onClick={nextFlavor}
@@ -339,6 +351,8 @@ export function FlavorCarousel() {
                 key={flavor.id}
                 onClick={() => {
                   const newDirection = index > currentIndex ? 1 : -1
+                  rotateX.set(0)
+                  rotateY.set(0)
                   setCurrentIndex(index)
                   setPage([index, newDirection])
                 }}
@@ -359,3 +373,4 @@ export function FlavorCarousel() {
     </section>
   )
 }
+
