@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
+import { Inter, JetBrains_Mono, Montserrat } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LenisProvider } from "@/components/lenis-provider"
 import ClickSpark from "@/components/click-spark"
@@ -16,11 +16,15 @@ const _jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
 })
 
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+})
+
 export const metadata: Metadata = {
-  title: "GiGi Energy Drink | Dream Big, Drink GiGi",
-  description: "Zero sugar, 75mg caffeine, 100% natural flavors. The energy drink for dreamers and doers.",
-  keywords: ["energy drink", "zero sugar", "natural energy", "GiGi", "caffeine"],
-    generator: 'v0.app'
+  title: "Assessoria Gourmetize",
+  description: "Assessoria de marketing especializada para restaurantes.",
+  generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
@@ -33,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
+    <html lang="pt-BR">
+      <body className={`font-sans ${montserrat.variable} antialiased`}>
         <ClickSpark
           sparkColor="#AFFF00"
           sparkSize={12}

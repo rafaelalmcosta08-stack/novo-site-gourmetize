@@ -112,7 +112,7 @@ export function HeroSection() {
                   initial="hidden"
                   animate="visible"
                   custom={2}
-                  className="inline-block text-[#AFFF00] bg-[#121212] px-3 py-1 rounded-2xl"
+                  className="inline-block text-[#70cc00]"
                 >
                   MENOS PLANILHA.
                 </motion.span>
@@ -122,7 +122,7 @@ export function HeroSection() {
                 initial="hidden"
                 animate="visible"
                 custom={3}
-                className="text-lg md:text-xl font-mono text-[#121212]/70 tracking-tight pt-2 max-w-md"
+                className="text-lg md:text-xl font-[family-name:var(--font-montserrat)] text-[#121212]/80 tracking-tight pt-2 max-w-md font-medium"
               >
                 Cardápio digital, landing page própria e painel de gestão feitos pra restaurante.
               </motion.p>
@@ -138,12 +138,12 @@ export function HeroSection() {
               {["Cardápio Digital", "Painel de Gestão", "Landing Page", "Suporte Direto"].map((benefit, i) => (
                 <motion.div
                   key={benefit}
-                  className="flex items-center gap-2 text-xs font-mono text-[#121212]/70 font-medium"
+                  className="flex items-center gap-2 text-xs font-[family-name:var(--font-montserrat)] text-[#121212]/80 font-semibold"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + i * 0.1 }}
                 >
-                  <div className="w-1.5 h-1.5 bg-[#AFFF00] border border-[#121212]/20 rounded-full" />
+                  <div className="w-2 h-2 bg-[#70cc00] rounded-full" />
                   {benefit}
                 </motion.div>
               ))}
