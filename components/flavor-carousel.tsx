@@ -5,37 +5,82 @@ import type React from "react"
 import { motion, AnimatePresence, useSpring } from "framer-motion"
 import { useState } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react"
 
 const flavors = [
   {
     id: 1,
-    name: "Lemon Lime",
-    tagline: "Citrus Shock",
-    description: "A zesty explosion of natural lemon and lime that wakes you up instantly.",
+    badge: "DESIGN & ENGENHARIA",
+    subtitle: "Método Exclusivo Gourmetize",
+    name: "ENGENHARIA DE CARDÁPIO DE ALTA CONVERSÃO",
+    fullCardImage: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784942089/digital_menu_feature_section_iwr80m.png",
+    fullCardImageMobile: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784948490/digital_menu_feature_section_2_siou31.png",
     image: "/images/drink2.png",
-    bgColor: "from-[#84cc16]/20 via-[#84cc16]/10 to-transparent",
-    accentColor: "#84cc16",
+    bgColor: "from-[#f59e0b]/15 via-[#f59e0b]/5 to-transparent",
+    accentColor: "#f59e0b",
+    features: [
+      {
+        title: "Design Gastronômico Desejável:",
+        desc: "Apresentação visual com fotos de altíssimo impacto, descrições apetitosas e organização psicológica de itens."
+      },
+      {
+        title: "Destaque nos Pratos de Maior Margem:",
+        desc: "Posicionamento estratégico dos seus produtos \"Estrela\" para induzir a escolha dos pratos mais lucrativos para a cozinha."
+      },
+      {
+        title: "Ancoragem e Venda Casada (Upsell):",
+        desc: "Inclusão inteligente de adicionais, bebidas e sobremesas que aumentam o valor médio de cada pedido sem esforço."
+      }
+    ]
   },
   {
     id: 2,
-    name: "Pineapple Coconut",
-    tagline: "Tropical Rush",
-    description: "Island vibes with every sip. Transport yourself to paradise.",
+    badge: "TRÁFEGO & ATRAÇÃO",
+    subtitle: "Método Exclusivo Gourmetize",
+    name: "GESTÃO DE TRÁFEGO PAGO PARA RESTAURANTES",
+    fullCardImage: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784948142/premium_management_hybrid_section_v2_2_rhu0ks.png",
+    fullCardImageMobile: "https://res.cloudinary.com/epo1w9hl/image/upload/v1784948462/premium_management_hybrid_section_v2_3_doxlez.png",
     image: "/images/drink1.png",
-    bgColor: "from-[#f59e0b]/20 via-[#f59e0b]/10 to-transparent",
-    accentColor: "#f59e0b",
+    bgColor: "from-[#84cc16]/15 via-[#84cc16]/5 to-transparent",
+    accentColor: "#84cc16",
+    features: [
+      {
+        title: "Atração de Clientes Qualificados:",
+        desc: "Anúncios geolocalizados no Instagram e Google direcionando clientes famintos para o seu restaurante."
+      },
+      {
+        title: "Campanhas nos Horários de Pico:",
+        desc: "Injeção estratégica de anúncios nos horários de almoço e jantar para alavancar os pedidos."
+      },
+      {
+        title: "Métricas e Retorno Previsível:",
+        desc: "Relatórios transparentes demonstrando exatamente quantas vendas e leads foram gerados."
+      }
+    ]
   },
   {
     id: 3,
-    name: "Mystery",
-    tagline: "Coming Soon",
-    description: "Something epic is brewing... Stay tuned.",
+    badge: "BRANDING & FOTOS",
+    subtitle: "Método Exclusivo Gourmetize",
+    name: "FOTOGRAFIA & POSICIONAMENTO DE MARCA",
     image: "/mystery-energy-drink-can-silhouette.jpg",
-    bgColor: "from-[#AFFF00]/20 via-[#AFFF00]/5 to-transparent",
-    accentColor: "#AFFF00",
-    mystery: true,
-  },
+    bgColor: "from-[#00D4FF]/15 via-[#00D4FF]/5 to-transparent",
+    accentColor: "#00D4FF",
+    features: [
+      {
+        title: "Fotografia Gastronômica Desejável:",
+        desc: "Sessões fotográficas com produção culinária focada em gerar desejo imediato."
+      },
+      {
+        title: "Valorização da Marca:",
+        desc: "Construção de autoridade visual para o seu restaurante se destacar da concorrência."
+      },
+      {
+        title: "Acervo para Redes e iFood:",
+        desc: "Material visual completo para uso em cardápios digitais, redes sociais e anúncios."
+      }
+    ]
+  }
 ]
 
 const slideVariants = {
@@ -171,131 +216,91 @@ export function FlavorCarousel() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                className="relative w-full max-w-3xl"
+                className="relative w-full max-w-5xl lg:max-w-6xl"
                 style={{ perspective: 1000 }}
               >
                 <motion.div
-                  className={`bg-white rounded-3xl p-6 md:p-8 border-2 border-[#121212]/10 shadow-xl ${currentFlavor.mystery ? "relative overflow-hidden" : ""}`}
+                  className={`bg-white rounded-3xl border-2 border-[#121212]/10 shadow-xl overflow-hidden ${currentFlavor.fullCardImage ? "p-0" : "p-6 md:p-8"}`}
                   style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
                   onMouseMove={handleMouseMove}
                   onMouseLeave={handleMouseLeave}
                 >
-                  {currentFlavor.mystery && (
-                    <motion.div
-                      className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27noise%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.8%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23noise)%27/%3E%3C/svg%3E')] opacity-10 pointer-events-none"
-                      animate={{ opacity: [0.05, 0.15, 0.05] }}
-                      transition={{ duration: 0.5, repeat: Number.POSITIVE_INFINITY }}
-                    />
-                  )}
+                  {currentFlavor.fullCardImage ? (
+                    <div className="relative w-full rounded-3xl overflow-hidden">
+                      <picture className="block w-full">
+                        {currentFlavor.fullCardImageMobile && (
+                          <source
+                            media="(max-width: 767px)"
+                            srcSet={currentFlavor.fullCardImageMobile}
+                          />
+                        )}
+                        <img
+                          src={currentFlavor.fullCardImage}
+                          alt={currentFlavor.name}
+                          className="w-full h-auto object-cover rounded-3xl block"
+                        />
+                      </picture>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-12 gap-6 items-center">
+                      <motion.div
+                        className="md:col-span-5 relative aspect-[3/4] flex items-center justify-center min-h-[220px]"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      >
+                        <Image
+                          src={currentFlavor.image || "/placeholder.svg"}
+                          alt={currentFlavor.name}
+                          fill
+                          className="object-contain"
+                        />
+                      </motion.div>
 
-                  <div className="grid md:grid-cols-2 gap-6 items-center">
-                    <motion.div
-                      className="relative aspect-[3/4] flex items-center justify-center"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    >
-                      <Image
-                        src={currentFlavor.image || "/placeholder.svg"}
-                        alt={currentFlavor.name}
-                        fill
-                        className={`object-contain ${currentFlavor.mystery ? "blur-sm grayscale" : ""}`}
-                      />
-                      {currentFlavor.mystery && (
-                        <motion.div
-                          className="absolute inset-0 flex items-center justify-center"
-                          animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
-                          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-                        >
-                          <span className="text-7xl font-black text-[#121212]/20">?</span>
-                        </motion.div>
-                      )}
-                    </motion.div>
+                      <div className="md:col-span-7 space-y-3.5">
+                        {/* Top Badges */}
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="bg-[#f59e0b] text-black font-extrabold text-[11px] uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+                            {currentFlavor.badge}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 text-xs text-[#121212]/80 font-bold">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                            {currentFlavor.subtitle}
+                          </span>
+                        </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <motion.span
-                          className="font-mono text-xs tracking-widest"
-                          style={{ color: currentFlavor.accentColor }}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          {currentFlavor.tagline}
-                        </motion.span>
+                        {/* Main Title */}
                         <motion.h3
-                          className="text-3xl md:text-4xl font-black text-[#121212] tracking-tighter mt-1"
-                          initial={{ opacity: 0, y: 20 }}
+                          className="text-2xl md:text-3xl font-black text-[#121212] tracking-tighter leading-tight"
+                          initial={{ opacity: 0, y: 15 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+                          transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
                         >
                           {currentFlavor.name}
                         </motion.h3>
-                      </div>
 
-                      <motion.p
-                        className="text-sm text-[#121212]/60 font-mono"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        {currentFlavor.description}
-                      </motion.p>
-
-                      {!currentFlavor.mystery && (
-                        <motion.div
-                          className="flex flex-wrap gap-2"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 }}
-                        >
-                          {["Zero Sugar", "Metabolism Boost", "Natural Flavours", "Vitamin Rich"].map((badge) => (
-                            <span
-                              key={badge}
-                              className="px-2 py-1 bg-[#121212]/5 rounded-full text-xs font-mono text-[#121212]/60"
+                        {/* Dark Feature Boxes from Image 1 */}
+                        <div className="space-y-2.5 pt-1">
+                          {currentFlavor.features.map((feat, idx) => (
+                            <motion.div
+                              key={idx}
+                              className="bg-[#121212] text-white p-3.5 md:p-4 rounded-xl border border-white/10 shadow-md flex items-start gap-3"
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.25 + idx * 0.08 }}
                             >
-                              {badge}
-                            </span>
+                              <div className="w-5 h-5 rounded-full border-2 border-amber-500/90 bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                                <Check className="w-3 h-3 text-amber-500 stroke-[3]" />
+                              </div>
+                              <div className="text-xs md:text-[13px] leading-relaxed">
+                                <span className="font-bold text-white mr-1.5">{feat.title}</span>
+                                <span className="text-gray-300 font-normal">{feat.desc}</span>
+                              </div>
+                            </motion.div>
                           ))}
-                        </motion.div>
-                      )}
-
-                      {!currentFlavor.mystery && (
-                        <motion.button
-                          className="px-6 py-3 rounded-full font-bold text-sm tracking-wide w-full md:w-auto relative overflow-hidden"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                          style={{ backgroundColor: currentFlavor.accentColor, color: "#121212" }}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                        >
-                          <motion.span
-                            className="absolute inset-0 bg-white/20"
-                            initial={{ x: "-100%" }}
-                            whileHover={{ x: "100%" }}
-                            transition={{ duration: 0.5 }}
-                          />
-                          <span className="relative z-10">Add to Cart</span>
-                        </motion.button>
-                      )}
-
-                      {currentFlavor.mystery && (
-                        <motion.div
-                          className="flex items-center gap-3"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 }}
-                        >
-                          <motion.div
-                            className="w-2 h-2 bg-[#AFFF00] rounded-full"
-                            animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                            transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                          />
-                          <span className="font-mono text-xs text-[#121212]/60">Dropping soon...</span>
-                        </motion.div>
-                      )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </motion.div>
               </motion.div>
             </AnimatePresence>
